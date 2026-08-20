@@ -1,0 +1,18 @@
+{
+  "test_id": "22c790ac-9c39-4110-ba88-d0a97e11a777",
+  "project_id": "01M0GB1M5XXC0WG4K2WXVCMKGS",
+  "folder_id": "01M0GB1NDQ9EG05B4JRXAAGR5N",
+  "org_id": "3281573",
+  "session_name": "cleaning-lifecycle",
+  "commit_id": "42f1aa9f-0e9a-4f3e-943e-669d15b49d1b",
+  "testcase_id": "01M0GBPQ9FC15MZD7W6R4MCDA2",
+  "executions": [
+    {
+      "execution_id": "d1d46f82-8af7-4857-9218-973478706fce",
+      "run_kind": "author",
+      "status": "passed",
+      "valid": true,
+      "at": "2026-08-20T19:57:43.334Z"
+    }
+  ]
+}
