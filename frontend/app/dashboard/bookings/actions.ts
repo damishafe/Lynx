@@ -162,13 +162,19 @@ export async function checkoutBookingAction(
       dueAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
       notes: `Auto-created at checkout for ${booking.guestName}.`,
     });
+  } catch (err) {
+    console.error("[bookings] checkout side-effects failed:", err);
+    return { error: "Checked out, but we couldn't schedule cleaning. Create the job manually." };
+  }
+
+  try {
     await Promise.all([
       attachCleaningWorkOrder(ownerId, bookingObjectId, workOrder._id),
       setUnitStatus(ownerId, unit._id, "needs_cleaning"),
     ]);
   } catch (err) {
-    console.error("[bookings] checkout side-effects failed:", err);
-    return { error: "Checked out, but we couldn't schedule cleaning. Create the job manually." };
+    console.error("[bookings] checkout follow-up failed:", err);
+    return { error: "Cleaning job created, but we couldn't update the unit. Refresh and check its status." };
   }
 
   void recordActivity(ownerId, {
