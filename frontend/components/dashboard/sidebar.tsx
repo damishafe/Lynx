@@ -59,14 +59,14 @@ function NavRow({
 
 export function Sidebar() {
   const pathname = usePathname() ?? "/dashboard";
-  const [expanded, setExpanded] = React.useState(false);
+  const [expanded, setExpanded] = React.useState(true);
   const [hydrated, setHydrated] = React.useState(false);
 
   React.useEffect(() => {
     const id = window.setTimeout(() => {
       try {
         const raw = window.localStorage.getItem(STORAGE_KEY);
-        if (raw === "1") setExpanded(true);
+        if (raw === "0") setExpanded(false);
       } catch {
         // ignore — private mode etc.
       }

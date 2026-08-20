@@ -13,7 +13,12 @@ export async function GET(
   if (!target.startsWith(base + sep)) {
     return new Response("Not found", { status: 404 });
   }
-  const st = statSync(target, { throwIfNoEntry: false });
+  let st;
+  try {
+    st = statSync(target, { throwIfNoEntry: false });
+  } catch {
+    return new Response("Not found", { status: 404 });
+  }
   if (!st?.isFile()) {
     return new Response("Not found", { status: 404 });
   }

@@ -17,7 +17,7 @@ export type FlowResult = {
   failedStep: { step: number; remark: string } | null;
   stepsTotal: number;
   durationS: number;
-  credits: number;
+  credits: number | null;
   replayed: boolean;
   runDir: string | null;
   testUrl: string | null;

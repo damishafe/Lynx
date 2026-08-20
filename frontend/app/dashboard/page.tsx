@@ -124,7 +124,7 @@ export default async function OverviewPage() {
 
   return (
     <>
-      <LiveDashboardRefresh />
+      <LiveDashboardRefresh intervalMs={15000} />
       <Topbar
         title={`Welcome back, ${firstName}`}
         user={{ name: session.name, email: session.email }}

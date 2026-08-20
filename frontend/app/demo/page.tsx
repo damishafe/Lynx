@@ -22,6 +22,7 @@ export default function DemoPage() {
         </p>
         <div className="mt-7 flex flex-wrap justify-center gap-3">
           <LaunchDemoButton label="Enter demo account" />
+          {/* Deliberately no confirm dialog: Kane tests start with this single click; the account is the fixed demo user only. */}
           <LaunchDemoButton mode="reset" variant="secondary" label="Reset & launch demo" />
           <Link
             href="/"

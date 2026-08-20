@@ -152,6 +152,13 @@ function Stage({ title, body, hint }: { title: string; body: string; hint?: stri
   );
 }
 
+const VERDICT_LABELS: Record<VerifyReport["verdict"], string> = {
+  verified: "verified",
+  failed: "failed",
+  error: "error",
+  "nothing-to-verify": "nothing to verify",
+};
+
 function VerdictPill({ verdict }: { verdict: VerifyReport["verdict"] }) {
   const classes =
     verdict === "verified" ? "bg-emerald-50 text-emerald-700 border-emerald-100/70"
@@ -159,7 +166,7 @@ function VerdictPill({ verdict }: { verdict: VerifyReport["verdict"] }) {
     : "bg-amber-50 text-amber-700 border-amber-100/70";
   return (
     <span className={cn("inline-flex w-fit items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold", classes)}>
-      {verdict}
+      {VERDICT_LABELS[verdict]}
     </span>
   );
 }
@@ -176,7 +183,7 @@ function FlowRow({ r }: { r: FlowResult }) {
           </span>
           <div>
             <div className="text-sm font-semibold tracking-tight text-zinc-900">{r.title}</div>
-            <div className="text-[11px] font-medium text-gray-500">{r.test} · {r.durationS}s · {r.replayed ? "replayed" : `${r.credits} credits`}</div>
+            <div className="text-[11px] font-medium text-gray-500">{r.test} · {r.durationS}s · {r.replayed ? "replayed" : `${r.credits ?? "?"} credits`}</div>
           </div>
         </div>
         {r.testUrl && (
