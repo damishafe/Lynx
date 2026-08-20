@@ -60,7 +60,13 @@ export function readHistory(limit = 20): VerifyReport[] {
     .split("\n")
     .filter(Boolean)
     .slice(-limit)
-    .map((l) => JSON.parse(l) as VerifyReport)
+    .flatMap((l) => {
+      try {
+        return [JSON.parse(l) as VerifyReport];
+      } catch {
+        return [];
+      }
+    })
     .reverse();
 }
 

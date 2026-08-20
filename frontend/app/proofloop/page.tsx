@@ -26,8 +26,14 @@ function verdictStyle(v: VerifyReport["verdict"] | "none") {
       return { label: "FAILED", classes: "bg-rose-500 text-white", icon: Alert02Icon, sub: "Kane found a flow that does not hold. The agent has been told." };
     case "error":
       return { label: "UNVERIFIED", classes: "bg-amber-500 text-white", icon: Alert02Icon, sub: "ProofLoop could not run Kane." };
-    default:
+    case "nothing-to-verify":
+      return { label: "NOTHING TO VERIFY", classes: "bg-zinc-700 text-white", icon: Clock01Icon, sub: "Last run found no mapped frontend changes." };
+    case "none":
       return { label: "NO RUNS YET", classes: "bg-zinc-900 text-white", icon: Clock01Icon, sub: "Run: node proofloop/src/cli.ts verify --all" };
+    default: {
+      const _exhaustive: never = v;
+      return _exhaustive;
+    }
   }
 }
 
