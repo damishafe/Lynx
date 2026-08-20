@@ -75,3 +75,12 @@ test("deriveOutcome combines run_end with the exit code", () => {
   assert.equal(deriveOutcome(infra.end(), 2), "error");
   assert.equal(deriveOutcome(infra.end(), 3), "error");
 });
+
+test("a final line without a trailing newline is flushed by end()", () => {
+  const p = createRunParser();
+  p.push('{"step":1,"status":"passed","remark":"a"}\n{"type":"run_end","status":"passed","final_state":{"k":"v"}}');
+  const r = p.end();
+  assert.equal(r.steps.length, 1);
+  assert.equal(r.runEnd?.status, "passed");
+  assert.equal(r.runEnd?.final_state?.k, "v");
+});
