@@ -37,7 +37,13 @@ export default async function UnitsPage({
       : undefined;
   const q = sp.q?.trim();
 
-  let counts = { total: 0, ready: 0, occupied: 0, maintenance: 0 };
+  let counts = {
+    total: 0,
+    ready: 0,
+    occupied: 0,
+    needs_cleaning: 0,
+    maintenance: 0,
+  };
   let units: Awaited<ReturnType<typeof listUnits>> = [];
   let error: string | null = null;
 

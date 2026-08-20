@@ -7,6 +7,7 @@ import {
   CheckmarkCircle01Icon,
   UserIcon,
   Settings01Icon,
+  Clock01Icon,
 } from "@hugeicons/core-free-icons";
 
 import { cn } from "@/lib/utils";
@@ -38,6 +39,13 @@ const config: Record<
     inactive:
       "bg-amber-50 text-amber-700 border-amber-100/70 hover:bg-amber-100/60",
   },
+  needs_cleaning: {
+    label: "Needs cleaning",
+    icon: Clock01Icon,
+    active:
+      "bg-sky-500 text-white border-sky-500 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.3),0_8px_20px_-8px_rgba(14,165,233,0.55)]",
+    inactive: "bg-sky-50 text-sky-700 border-sky-100/70 hover:bg-sky-100/60",
+  },
   maintenance: {
     label: "Maintenance",
     icon: Settings01Icon,
@@ -51,9 +59,14 @@ const config: Record<
 export function UnitStatusSwitcher({
   unitId,
   current,
+  blockedStatuses = [],
+  blockedReason,
 }: {
   unitId: string;
   current: UnitStatus;
+  /** Statuses the server would refuse right now (e.g. "ready" while a cleaning job is open). */
+  blockedStatuses?: UnitStatus[];
+  blockedReason?: string;
 }) {
   const [optimistic, setOptimistic] = useOptimistic(
     current,
@@ -64,6 +77,10 @@ export function UnitStatusSwitcher({
 
   const onPick = (next: UnitStatus) => {
     if (next === optimistic) return;
+    if (blockedStatuses.includes(next)) {
+      setError(blockedReason ?? "That status isn't available right now.");
+      return;
+    }
     setError(null);
     startTransition(async () => {
       setOptimistic(next);
@@ -76,19 +93,23 @@ export function UnitStatusSwitcher({
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         {UNIT_STATUSES.map((s) => {
           const c = config[s];
           const active = optimistic === s;
+          const blocked = blockedStatuses.includes(s) && !active;
           return (
             <button
               key={s}
               type="button"
               onClick={() => onPick(s)}
               aria-pressed={active}
+              aria-disabled={blocked}
+              title={blocked ? blockedReason : undefined}
               className={cn(
                 "cursor-pointer inline-flex items-center justify-center gap-2 rounded-2xl border px-3 py-2.5 text-sm font-semibold tracking-tight transition-all duration-200",
                 active ? c.active : c.inactive,
+                blocked && "opacity-50 cursor-not-allowed",
               )}
             >
               <HugeiconsIcon icon={c.icon} size={14} strokeWidth={2.2} />

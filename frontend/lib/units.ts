@@ -91,6 +91,7 @@ export type StatusCounts = {
   total: number;
   ready: number;
   occupied: number;
+  needs_cleaning: number;
   maintenance: number;
 };
 
@@ -106,6 +107,7 @@ export async function countUnitsByStatus(
     total: 0,
     ready: 0,
     occupied: 0,
+    needs_cleaning: 0,
     maintenance: 0,
   };
   for await (const row of cursor) {

@@ -21,6 +21,7 @@ import {
   countUnitsByStatus,
   listUnits,
   totalMonthlyRevenueCents,
+  type StatusCounts,
   type UnitDoc,
 } from "@/lib/units";
 import { listRecentActivity, type ActivityEvent } from "@/lib/activity";
@@ -77,7 +78,13 @@ export default async function OverviewPage() {
   if (!session || !ObjectId.isValid(session.userId)) redirect("/login");
   const ownerId = new ObjectId(session.userId);
 
-  let counts = { total: 0, ready: 0, occupied: 0, maintenance: 0 };
+  let counts = {
+    total: 0,
+    ready: 0,
+    occupied: 0,
+    needs_cleaning: 0,
+    maintenance: 0,
+  };
   let revenueCents = 0;
   let recentUnits: UnitDoc[] = [];
   let activity: ActivityEvent[] = [];
@@ -541,14 +548,11 @@ function formatDueDate(d?: Date): string {
 
 // ---------- Status breakdown card ----------
 
-function StatusBreakdownCard({
-  counts,
-}: {
-  counts: { total: number; ready: number; occupied: number; maintenance: number };
-}) {
+function StatusBreakdownCard({ counts }: { counts: StatusCounts }) {
   const segments = [
     { key: "ready" as const, label: "Ready", value: counts.ready, color: "#10B981" },
     { key: "occupied" as const, label: "Occupied", value: counts.occupied, color: "#F59E0B" },
+    { key: "needs_cleaning" as const, label: "Needs cleaning", value: counts.needs_cleaning, color: "#0EA5E9" },
     { key: "maintenance" as const, label: "Maintenance", value: counts.maintenance, color: "#F43F5E" },
   ];
   const total = counts.total || 1;

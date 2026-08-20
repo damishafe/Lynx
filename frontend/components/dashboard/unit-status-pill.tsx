@@ -3,6 +3,7 @@ import {
   CheckmarkCircle01Icon,
   UserIcon,
   Settings01Icon,
+  Clock01Icon,
 } from "@hugeicons/core-free-icons";
 
 import { cn } from "@/lib/utils";
@@ -28,6 +29,12 @@ const config: Record<
     icon: UserIcon,
     classes: "bg-amber-50 text-amber-700 border-amber-100/70",
     dotClass: "bg-amber-500",
+  },
+  needs_cleaning: {
+    label: "Needs cleaning",
+    icon: Clock01Icon,
+    classes: "bg-sky-50 text-sky-700 border-sky-100/70",
+    dotClass: "bg-sky-500",
   },
   maintenance: {
     label: "Maintenance",

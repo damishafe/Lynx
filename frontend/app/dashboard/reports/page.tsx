@@ -42,7 +42,13 @@ export default async function ReportsPage() {
   if (!session || !ObjectId.isValid(session.userId)) redirect("/login");
   const ownerId = new ObjectId(session.userId);
 
-  let counts = { total: 0, ready: 0, occupied: 0, maintenance: 0 };
+  let counts = {
+    total: 0,
+    ready: 0,
+    occupied: 0,
+    needs_cleaning: 0,
+    maintenance: 0,
+  };
   let revenueCents = 0;
   let payouts: Awaited<ReturnType<typeof listPayouts>> = [];
 

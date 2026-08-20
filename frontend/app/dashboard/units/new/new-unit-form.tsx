@@ -17,6 +17,7 @@ const initialState: CreateUnitState = {};
 const statusLabels: Record<UnitStatus, string> = {
   ready: "Ready",
   occupied: "Occupied",
+  needs_cleaning: "Needs cleaning",
   maintenance: "Maintenance",
 };
 
@@ -32,6 +33,11 @@ const statusStyles: Record<UnitStatus, { active: string; inactive: string }> = {
       "bg-amber-500 text-white border-amber-500 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.3),0_8px_20px_-8px_rgba(245,158,11,0.55)]",
     inactive:
       "bg-amber-50 text-amber-700 border-amber-100/70 hover:bg-amber-100/60",
+  },
+  needs_cleaning: {
+    active:
+      "bg-sky-500 text-white border-sky-500 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.3),0_8px_20px_-8px_rgba(14,165,233,0.55)]",
+    inactive: "bg-sky-50 text-sky-700 border-sky-100/70 hover:bg-sky-100/60",
   },
   maintenance: {
     active:
@@ -107,7 +113,7 @@ export function NewUnitForm() {
             You can flip it any time from the unit page.
           </p>
         </div>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {UNIT_STATUSES.map((s) => {
             const active = status === s;
             return (

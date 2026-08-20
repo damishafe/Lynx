@@ -9,6 +9,7 @@ import { UnitStatusPill } from "./unit-status-pill";
 const toneByStatus: Record<UnitDoc["status"], string> = {
   ready: "from-emerald-100/70 to-emerald-50/0",
   occupied: "from-amber-100/70 to-amber-50/0",
+  needs_cleaning: "from-sky-100/70 to-sky-50/0",
   maintenance: "from-rose-100/70 to-rose-50/0",
 };
 

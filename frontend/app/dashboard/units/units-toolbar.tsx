@@ -13,19 +13,27 @@ import { UNIT_STATUSES, type UnitStatus } from "@/lib/unit-status";
 const statusLabels: Record<UnitStatus, string> = {
   ready: "Ready",
   occupied: "Occupied",
+  needs_cleaning: "Needs cleaning",
   maintenance: "Maintenance",
 };
 
 const statusTones: Record<UnitStatus, string> = {
   ready: "bg-emerald-50 text-emerald-700 border-emerald-100/70",
   occupied: "bg-amber-50 text-amber-700 border-amber-100/70",
+  needs_cleaning: "bg-sky-50 text-sky-700 border-sky-100/70",
   maintenance: "bg-rose-50 text-rose-700 border-rose-100/70",
 };
 
 export function UnitsToolbar({
   counts,
 }: {
-  counts: { total: number; ready: number; occupied: number; maintenance: number };
+  counts: {
+    total: number;
+    ready: number;
+    occupied: number;
+    needs_cleaning: number;
+    maintenance: number;
+  };
 }) {
   const router = useRouter();
   const pathname = usePathname() ?? "/dashboard/units";
