@@ -7,12 +7,14 @@ import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/auth";
 import {
   createUnit,
+  getUnitById,
   setUnitStatus,
   softDeleteUnit,
   type UnitStatus,
   UNIT_STATUSES,
 } from "@/lib/units";
 import { recordActivity } from "@/lib/activity";
+import { hasOpenCleaningWorkOrder } from "@/lib/work-orders";
 
 export type CreateUnitState = { error?: string };
 
@@ -96,6 +98,20 @@ export async function setUnitStatusAction(
   if (!STATUS_SET.has(status)) return { error: "Invalid status." };
 
   const unitObjectId = new ObjectId(unitId);
+
+  if (status === "ready") {
+    const [unit, openCleaning] = await Promise.all([
+      getUnitById(ownerId, unitObjectId),
+      hasOpenCleaningWorkOrder(ownerId, unitObjectId),
+    ]);
+    if (!unit) return { error: "Unit not found." };
+    if (openCleaning) {
+      return {
+        error: `${unit.name} has an open cleaning job. Complete it before marking the unit Ready.`,
+      };
+    }
+  }
+
   const ok = await setUnitStatus(ownerId, unitObjectId, status);
   if (!ok) return { error: "Unit not found." };
 

@@ -150,6 +150,10 @@ export default async function UnitDetailPage({
     listWorkOrders(ownerId, { unitId: unitObjectId, limit: 25 }),
   ]);
 
+  const openCleaning = workOrders.some(
+    (w) => w.type === "cleaning" && w.status === "assigned",
+  );
+
   // Costs in the rolling profit window — same definition the Overview uses.
   const profitWindowStart = defaultProfitWindowStart();
   const periodCostsCents = payouts
@@ -243,7 +247,12 @@ export default async function UnitDetailPage({
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-400 mb-3">
                 Status
               </p>
-              <UnitStatusSwitcher unitId={id} current={unit.status} />
+              <UnitStatusSwitcher
+                unitId={id}
+                current={unit.status}
+                blockedStatuses={openCleaning ? ["ready"] : []}
+                blockedReason={`${unit.name} has an open cleaning job. Complete it before marking the unit Ready.`}
+              />
               <p className="mt-3 text-[11px] font-medium text-gray-400">
                 Last changed {formatRelative(new Date(unit.lastStatusChangeAt))}
               </p>
