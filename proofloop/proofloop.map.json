@@ -1,0 +1,78 @@
+{
+  "$comment": "Maps changed files to the business flows Kane must re-prove. Paths are globs relative to the repo root. A file matching `shared` selects every flow; a changed file matching nothing is reported as unmapped and triggers `fallback`.",
+  "flows": {
+    "booking": {
+      "title": "Booking lifecycle — revenue and occupancy",
+      "tests": ["kane/booking-lifecycle_test.md"],
+      "paths": [
+        "frontend/lib/bookings.ts",
+        "frontend/app/dashboard/bookings/**",
+        "frontend/components/dashboard/booking-status-pill.tsx",
+        "frontend/components/dashboard/unit-card.tsx",
+        "frontend/components/dashboard/unit-status-pill.tsx"
+      ]
+    },
+    "cleaning": {
+      "title": "Cleaning lifecycle — checkout creates one cleaning job",
+      "tests": ["kane/cleaning-lifecycle_test.md"],
+      "paths": [
+        "frontend/lib/bookings.ts",
+        "frontend/lib/work-orders.ts",
+        "frontend/app/dashboard/bookings/actions.ts",
+        "frontend/app/dashboard/units/**",
+        "frontend/components/dashboard/checkout-booking-button.tsx",
+        "frontend/components/dashboard/unit-status-switcher.tsx"
+      ]
+    },
+    "readiness": {
+      "title": "Unit readiness — completing cleaning pays the vendor once",
+      "tests": ["kane/unit-readiness_test.md"],
+      "paths": [
+        "frontend/lib/work-orders.ts",
+        "frontend/lib/payouts.ts",
+        "frontend/app/dashboard/work-orders/**",
+        "frontend/app/vendor/**",
+        "frontend/components/dashboard/complete-work-order-button.tsx"
+      ]
+    },
+    "profit": {
+      "title": "Profitability invariant — Net = Revenue − Costs",
+      "tests": ["kane/profit-invariant_test.md"],
+      "paths": [
+        "frontend/lib/ledger.ts",
+        "frontend/lib/ledger-math.ts",
+        "frontend/lib/bookings.ts",
+        "frontend/lib/payouts.ts",
+        "frontend/lib/work-orders.ts",
+        "frontend/app/dashboard/page.tsx",
+        "frontend/components/dashboard/profitability-card.tsx"
+      ]
+    }
+  },
+  "shared": [
+    "frontend/lib/seed.ts",
+    "frontend/lib/units.ts",
+    "frontend/lib/unit-status.ts",
+    "frontend/lib/mongodb.ts",
+    "frontend/lib/auth.ts",
+    "frontend/app/demo/**",
+    "frontend/app/dashboard/layout.tsx",
+    "frontend/components/dashboard/sidebar.tsx",
+    "frontend/components/dashboard/nav-items.ts",
+    "frontend/components/dashboard/mobile-drawer.tsx"
+  ],
+  "fallback": ["profit"],
+  "ignore": [
+    "frontend/app/proofloop/**",
+    "frontend/app/api/proofloop/**",
+    "frontend/lib/proofloop.ts",
+    "frontend/app/(auth)/**",
+    "frontend/app/dashboard/billing/**",
+    "frontend/app/dashboard/settings/**",
+    "frontend/app/dashboard/help/**",
+    "frontend/components/sections/**",
+    "frontend/app/page.tsx",
+    "frontend/lib/email.ts",
+    "frontend/lib/stripe.ts"
+  ]
+}
