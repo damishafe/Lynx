@@ -16,11 +16,13 @@ export default function DemoPage() {
           Launch Lynx demo
         </h1>
         <p className="mt-3 text-sm font-medium text-gray-500 leading-relaxed max-w-md mx-auto">
-          Opens a seeded operator account with units, vendors, payouts, and work
-          orders ready for the split-screen completion demo.
+          Opens a seeded operator account with three units and two vendors.
+          &quot;Reset &amp; launch demo&quot; wipes the account first so every
+          run starts from the same state.
         </p>
         <div className="mt-7 flex flex-wrap justify-center gap-3">
           <LaunchDemoButton label="Enter demo account" />
+          <LaunchDemoButton mode="reset" variant="secondary" label="Reset & launch demo" />
           <Link
             href="/"
             className={buttonClasses({ variant: "secondary", size: "md" })}
