@@ -14,7 +14,7 @@ export type VerifyOptions = {
   trigger: "hook" | "cli";
   attempt: number;
   timeoutS?: number; // per test, default 300
-  budgetS?: number; // wall-clock budget across all tests, default 1250
+  budgetS?: number; // wall-clock budget across all tests, default 1150
 };
 
 export type VerifyDeps = {
@@ -109,7 +109,7 @@ export async function runVerify(opts: VerifyOptions, overrides: Partial<VerifyDe
   deps.log(`ProofLoop: ${changedFiles.length} changed file(s) → ${flows.length} flow(s): ${flows.join(", ")}`);
   if (impact.unmapped.length) deps.log(`ProofLoop: unmapped changes (running fallback): ${impact.unmapped.join(", ")}`);
 
-  const budgetS = opts.budgetS ?? 1250;
+  const budgetS = opts.budgetS ?? 1150;
   const results: FlowResult[] = [];
   const seenTests = new Set<string>();
   for (const flow of flows) {
