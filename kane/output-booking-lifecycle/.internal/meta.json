@@ -1,0 +1,25 @@
+{
+  "test_id": "ca63890d-1914-47b9-9f9e-e26c00d46e0e",
+  "project_id": "01M0GB1M5XXC0WG4K2WXVCMKGS",
+  "folder_id": "01M0GB1NDQ9EG05B4JRXAAGR5N",
+  "org_id": "3281573",
+  "session_name": "booking-lifecycle",
+  "commit_id": "8af58a55-8c4f-4563-8265-861382680052",
+  "testcase_id": "01M0GB8GQEB61SPEWJSG7FZXWD",
+  "executions": [
+    {
+      "execution_id": "f1c20260-2364-46ef-8feb-2889b2071277",
+      "run_kind": "author",
+      "status": "passed",
+      "valid": true,
+      "at": "2026-08-20T19:48:07.513Z"
+    },
+    {
+      "execution_id": "6b658aa0-797f-4d9c-91ed-9e076bd33a93",
+      "run_kind": "replay",
+      "status": "passed",
+      "valid": true,
+      "at": "2026-08-20T19:51:51.990Z"
+    }
+  ]
+}
