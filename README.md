@@ -44,6 +44,26 @@ same verdict as a live status page: flows verified, repair iterations, evidence.
 
 Set `PROOFLOOP_DISABLED=1` to skip the Stop hook entirely (e.g. `npm run dev` isn't running).
 
+## Install ProofLoop in your own repo
+
+ProofLoop isn't Lynx-specific — one command wires it into any git repo:
+
+```bash
+node proofloop/src/cli.ts init --app-url http://localhost:3000
+```
+
+It creates, without overwriting anything that already exists (`--force` to overwrite):
+
+- `.claude/settings.json` — the Stop hook (merged in alongside any hooks you already have)
+- `proofloop/proofloop.map.json` — a starter flow map with configurable `roots`
+- `.testmuai/variables/local.json` and `.testmuai/context.md` — Kane's app URL and context
+- `kane/smoke_test.md` — a two-step "the app loads" test to start from
+
+Then: `npm i -g @testmuai/kane-cli && kane-cli login`, start your app, and run
+`node proofloop/src/cli.ts verify --all`. Edit `proofloop.map.json` to map your own files to
+flows, and restart Claude Code so the Stop hook loads. This Lynx repo is the worked example —
+everything above `## How the loop closes` is what `init` produces, grown up.
+
 ## How the loop closes
 
 ```
