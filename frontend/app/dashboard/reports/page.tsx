@@ -13,11 +13,9 @@ import {
 } from "@hugeicons/core-free-icons";
 
 import { getSession } from "@/lib/auth";
-import {
-  countUnitsByStatus,
-  totalMonthlyRevenueCents,
-} from "@/lib/units";
-import { listPayouts } from "@/lib/payouts";
+import { countUnitsByStatus } from "@/lib/units";
+import { defaultProfitWindowStart, listPayouts } from "@/lib/payouts";
+import { totalBookingRevenueCents } from "@/lib/bookings";
 import { Topbar } from "@/components/dashboard/topbar";
 import { cn } from "@/lib/utils";
 
@@ -55,7 +53,7 @@ export default async function ReportsPage() {
   try {
     [counts, revenueCents, payouts] = await Promise.all([
       countUnitsByStatus(ownerId),
-      totalMonthlyRevenueCents(ownerId),
+      totalBookingRevenueCents(ownerId, { since: defaultProfitWindowStart() }),
       listPayouts(ownerId, { limit: 100 }),
     ]);
   } catch (err) {

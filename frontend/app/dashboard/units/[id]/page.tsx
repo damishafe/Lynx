@@ -20,6 +20,7 @@ import {
   listPayoutsForUnit,
   type PayoutDoc,
 } from "@/lib/payouts";
+import { getLedger } from "@/lib/ledger";
 import {
   formatWorkOrderType,
   listWorkOrders,
@@ -154,17 +155,13 @@ export default async function UnitDetailPage({
     (w) => w.type === "cleaning" && w.status === "assigned",
   );
 
-  // Costs in the rolling profit window — same definition the Overview uses.
-  const profitWindowStart = defaultProfitWindowStart();
-  const periodCostsCents = payouts
-    .filter(
-      (p) =>
-        p.status === "completed" &&
-        new Date(p.occurredAt) >= profitWindowStart,
-    )
-    .reduce((sum, p) => sum + Math.abs(p.amountCents), 0);
-  const monthlyRevenueCents = unit.monthlyRevenueCents ?? 0;
-  const netProfitCents = monthlyRevenueCents - periodCostsCents;
+  const unitLedger = await getLedger(ownerId, {
+    since: defaultProfitWindowStart(),
+    unitId: unitObjectId,
+  });
+  const periodCostsCents = unitLedger.costsCents;
+  const monthlyRevenueCents = unitLedger.revenueCents;
+  const netProfitCents = unitLedger.netCents;
   const showProfit = monthlyRevenueCents > 0 || periodCostsCents > 0;
 
   const timeline: TimelineItem[] = [

@@ -20,7 +20,6 @@ import { getSession } from "@/lib/auth";
 import {
   countUnitsByStatus,
   listUnits,
-  totalMonthlyRevenueCents,
   type StatusCounts,
   type UnitDoc,
 } from "@/lib/units";
@@ -35,15 +34,17 @@ import {
   defaultProfitWindowStart,
   formatAmount,
   formatUnsignedAmount,
-  totalCompletedSpendCents,
   totalOwedToVendorsCents,
 } from "@/lib/payouts";
+import { getLedger } from "@/lib/ledger";
+import type { Ledger } from "@/lib/ledger-math";
 
 import { Topbar } from "@/components/dashboard/topbar";
 import { UnitCard } from "@/components/dashboard/unit-card";
 import { CompleteWorkOrderButton } from "@/components/dashboard/complete-work-order-button";
 import { LiveDashboardRefresh } from "@/components/dashboard/live-dashboard-refresh";
 import { WorkOrderStatusPill } from "@/components/dashboard/work-order-status-pill";
+import { ProfitabilityCard } from "@/components/dashboard/profitability-card";
 import { buttonClasses } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -85,36 +86,31 @@ export default async function OverviewPage() {
     needs_cleaning: 0,
     maintenance: 0,
   };
-  let revenueCents = 0;
+  let ledger: Ledger = { revenueCents: 0, costsCents: 0, netCents: 0 };
   let recentUnits: UnitDoc[] = [];
   let activity: ActivityEvent[] = [];
   let assignedWorkOrders: WorkOrderDoc[] = [];
   let latestCompletedWorkOrder: WorkOrderDoc | null = null;
   let owedToVendorsCents = 0;
-  let costsCents = 0;
   let loadError: string | null = null;
 
   try {
     [
       counts,
-      revenueCents,
+      ledger,
       recentUnits,
       activity,
       assignedWorkOrders,
       latestCompletedWorkOrder,
       owedToVendorsCents,
-      costsCents,
     ] = await Promise.all([
       countUnitsByStatus(ownerId),
-      totalMonthlyRevenueCents(ownerId),
+      getLedger(ownerId, { since: defaultProfitWindowStart() }),
       listUnits(ownerId, { limit: 6 }),
       listRecentActivity(ownerId, 8),
       listWorkOrders(ownerId, { status: "assigned", limit: 6 }),
       getLatestCompletedWorkOrder(ownerId),
       totalOwedToVendorsCents(ownerId),
-      totalCompletedSpendCents(ownerId, {
-        since: defaultProfitWindowStart(),
-      }),
     ]);
   } catch (err) {
     console.error("[overview] read failed:", err);
@@ -124,7 +120,7 @@ export default async function OverviewPage() {
 
   const firstName = session.name.split(" ")[0] || "there";
   const occupancyPct = pct(counts.occupied, counts.total);
-  const netProfitCents = revenueCents - costsCents;
+  const { revenueCents, costsCents, netCents: netProfitCents } = ledger;
 
   return (
     <>
@@ -164,7 +160,7 @@ export default async function OverviewPage() {
           hint={
             revenueCents > 0
               ? `${formatMoney(revenueCents)} rev − ${formatMoney(costsCents)} costs`
-              : "Set unit revenue to track"
+              : "Add a booking to track"
           }
           icon={MoneyBag01Icon}
           tone={netProfitCents < 0 ? "rose" : "ink"}
@@ -178,6 +174,8 @@ export default async function OverviewPage() {
         </section>
       ) : (
         <>
+          <ProfitabilityCard ledger={ledger} />
+
           <OperationsPanel
             assignedWorkOrders={assignedWorkOrders}
             latestCompletedWorkOrder={latestCompletedWorkOrder}
