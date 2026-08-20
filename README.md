@@ -55,7 +55,7 @@ Stop hook  ──►  node proofloop/src/cli.ts hook        (.claude/settings.js
                   ├─ changed files   git diff HEAD + staged + untracked, scoped to frontend/
                   ├─ impacted flows  proofloop/proofloop.map.json  (flow → paths[] + tests[])
                   ├─ preflight       GET {{app_url}} reachable? kane-cli present?
-                  ├─ for each flow   kane-cli testmd run kane/<flow>_test.md --agent --headless --retry
+                  ├─ for each flow   kane-cli testmd run kane/<flow>_test.md --agent --headless
                   │                  (Chrome → http://localhost:3000/demo → real user flow)
                   ├─ parse NDJSON    terminal `run_end` per flow (status/reason/summary/final_state/run_dir/test_url)
                   ├─ record          .proofloop/latest.json, .proofloop/history.jsonl, .proofloop/evidence/<run>/

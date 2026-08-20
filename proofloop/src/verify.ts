@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { getChangedFiles as gitChangedFiles } from "./diff.ts";
 import { computeImpact, loadFlowMap } from "./impact.ts";
 import { kaneVersion, runKaneTest, type KaneRunOptions, type KaneRunResult } from "./kane.ts";
-import { deriveOutcome, runCredits, stepGlyph } from "./ndjson.ts";
+import { deriveOutcome, failureReason, stepGlyph, totalCredits, wasReplayed } from "./ndjson.ts";
 import { collectEvidence, reportId, writeReport, type FlowResult, type VerifyReport } from "./report.ts";
 
 export type VerifyOptions = {
@@ -162,34 +162,44 @@ export async function runVerify(opts: VerifyOptions, overrides: Partial<VerifyDe
         },
       });
       const status = deriveOutcome(run.parsed, run.exitCode);
-      const end = run.parsed.runEnd;
-      const credits = runCredits(end);
+      const parsed = run.parsed;
+      const end = parsed.runEnd; // testmd: the last step's run_end
+      const md = parsed.mdSummary;
+      const credits = totalCredits(parsed);
+      const failed = parsed.failedMdStep;
       const errorReason =
         status === "error"
-          ? `kane-cli exited ${run.exitCode} without a run_end event` +
+          ? `kane-cli exited ${run.exitCode} without a terminal event` +
             (stderrTail.length ? ` — stderr: ${stderrTail.slice(-5).join(" | ")}` : "")
           : "";
+      const reason = status === "error" && !end && !md ? errorReason : failureReason(parsed) || errorReason;
+      const failedRunEnd = failed?.runEnd ?? end;
       const result: FlowResult = {
         flow,
         title: def.title ?? flow,
         test,
         status,
         exitCode: run.exitCode,
-        reason: end?.reason ?? errorReason,
-        summary: end?.summary ?? "",
-        oneLiner: end?.one_liner ?? "",
-        finalState: (end?.final_state as Record<string, unknown> | undefined) ?? {},
-        failedStep: run.parsed.failedStep ? { step: run.parsed.failedStep.step, remark: run.parsed.failedStep.remark } : null,
-        stepsTotal: run.parsed.steps.length,
-        durationS: typeof end?.duration === "number" ? end.duration : run.durationS,
+        reason,
+        summary: failedRunEnd?.summary ?? end?.summary ?? "",
+        oneLiner: failedRunEnd?.one_liner ?? end?.one_liner ?? "",
+        finalState: parsed.finalState,
+        failedStep: failed
+          ? { step: failed.index, remark: `${failed.heading} — ${failed.runEnd?.one_liner ?? failed.status}` }
+          : parsed.failedStep
+            ? { step: parsed.failedStep.step, remark: parsed.failedStep.remark }
+            : null,
+        stepsTotal: parsed.mdSteps.length || parsed.steps.length,
+        durationS: typeof md?.duration_s === "number" ? md.duration_s : typeof end?.duration === "number" ? end.duration : run.durationS,
         credits,
-        replayed: credits === 0 && status !== "error",
-        runDir: end?.run_dir ?? null,
-        testUrl: end?.test_url ?? null,
+        replayed: status !== "error" && wasReplayed(parsed),
+        runDir: failedRunEnd?.run_dir ?? end?.run_dir ?? null,
+        testUrl: md?.share_url ?? end?.test_url ?? null,
         evidence: { screenshot: null, actions: null },
       };
       if (status !== "passed") result.evidence = collectEvidence(opts.root, id, flow, result.runDir);
-      deps.log(`${status === "passed" ? "✓" : "✗"} ${flow} ${status} (${result.durationS}s)`);
+      for (const st of parsed.mdSteps) deps.log(`  [${flow}] ${st.status === "passed" ? "✓" : "✗"} ${st.index}. ${st.heading} (${st.durationS ?? "?"}s)`);
+      deps.log(`${status === "passed" ? "✓" : "✗"} ${flow} ${status} (${result.durationS}s, ${result.replayed ? "replayed" : `${credits ?? "?"} credits`})`);
       results.push(result);
     }
   }

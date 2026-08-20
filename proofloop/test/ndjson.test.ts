@@ -102,3 +102,47 @@ test("a progress event with status 'error' counts as the failed step", () => {
   p.line('{"type":"run_end","status":"failed","reason":"assertion failed"}');
   assert.equal(p.end().failedStep?.step, 4);
 });
+
+test("testmd mode: aggregates per-step run_ends and keys the verdict off test_md_summary (passed)", () => {
+  const p = createRunParser();
+  p.push(fixture("testmd-passed.ndjson"));
+  const r = p.end();
+  assert.equal(r.runEnds.length, 6);
+  assert.equal(r.mdSteps.length, 6);
+  assert.equal(r.mdSteps[0].heading, "Reset the demo account");
+  assert.equal(r.mdSummary?.overall_status, "passed");
+  assert.equal(r.mdSummary?.steps?.author_decisions, 6);
+  assert.equal(r.finalState.revenue, "$1,000.00");
+  assert.equal(r.failedMdStep, null);
+  assert.equal(deriveOutcome(r, 0), "passed");
+});
+
+test("testmd mode: a failing step is surfaced with its own run_end reason", async () => {
+  const { failureReason, totalCredits, wasReplayed } = await import("../src/ndjson.ts");
+  const p = createRunParser();
+  p.push(fixture("testmd-failed.ndjson"));
+  const r = p.end();
+  assert.equal(deriveOutcome(r, 1), "failed");
+  assert.equal(r.failedMdStep?.index, 6);
+  assert.match(failureReason(r), /^Step 6 "Revenue is recognised": Assertion failed: Revenue showed \$0\.00/);
+  assert.equal(r.finalState.revenue, "$0.00");
+  assert.ok((totalCredits(r) ?? 0) > 0);
+  assert.equal(wasReplayed(r), false);
+});
+
+test("testmd mode: a run_end is not terminal — later steps are still parsed", () => {
+  const p = createRunParser();
+  p.line('{"type":"test_md_step_start","step_index":1,"heading":"a"}');
+  p.line('{"type":"run_end","status":"passed","credits_consumed":1}');
+  p.line('{"type":"test_md_step_end","step_index":1,"status":"passed","duration_s":1}');
+  p.line('{"type":"test_md_step_start","step_index":2,"heading":"b"}');
+  p.line('{"type":"run_end","status":"failed","reason":"nope","credits_consumed":0}');
+  p.line('{"type":"test_md_step_end","step_index":2,"status":"failed","duration_s":1}');
+  p.line('{"type":"test_md_summary","overall_status":"failed","steps":{"total":2,"passed":1,"failed":1,"replay_decisions":2,"author_decisions":0}}');
+  p.line('{"type":"test_md_done","overall_status":"failed"}');
+  p.line('{"type":"run_end","status":"passed"}'); // trailing noise after done must be ignored
+  const r = p.end();
+  assert.equal(r.runEnds.length, 2);
+  assert.equal(r.failedMdStep?.heading, "b");
+  assert.equal(deriveOutcome(r, 1), "failed");
+});

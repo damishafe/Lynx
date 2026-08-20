@@ -12,8 +12,9 @@ const fixture = (n: string) => join(here, "fixtures", n);
 test("buildKaneArgs produces the documented testmd invocation", () => {
   assert.deepEqual(
     buildKaneArgs({ testPath: "kane/x_test.md", cwd: "/r", variablesFile: ".testmuai/variables/local.json", timeoutS: 420 }),
-    ["testmd", "run", "kane/x_test.md", "--agent", "--headless", "--retry", "--timeout", "420", "--variables-file", ".testmuai/variables/local.json"],
+    ["testmd", "run", "kane/x_test.md", "--agent", "--headless", "--timeout", "420", "--variables-file", ".testmuai/variables/local.json"],
   );
+  assert.ok(buildKaneArgs({ testPath: "kane/x_test.md", cwd: "/r", retry: true }).includes("--retry"));
 });
 
 test("runs the stub, streams steps, captures run_end and exit code (pass)", async () => {
