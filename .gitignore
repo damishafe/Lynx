@@ -13,3 +13,7 @@ node_modules/
 
 # Kane CLI local scratch
 .testmuai/tests/
+
+# git worktrees / superpowers scratch
+.worktrees/
+.superpowers/

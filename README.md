@@ -5,7 +5,7 @@ cleaning, vendor payouts and a live profitability ledger. It was built almost en
 Claude Code. **ProofLoop** is the verification layer that made that safe to ship: every time
 Claude Code tries to end a turn with uncommitted changes under `frontend/`, a Stop hook maps
 those changes to the business flows they could break, replays the matching `kane/*_test.md`
-tests in a real headless Chrome via [Kane CLI](https://testmu.ai/), and **blocks the stop** —
+tests in a real headless Chrome via [Kane CLI](https://www.testmuai.com/support/docs/kane-cli-introduction/), and **blocks the stop** —
 feeding Kane's failure report straight back to Claude — until the flows pass in the browser,
 not just in the agent's head.
 
@@ -30,17 +30,17 @@ docker run -d --name lynx-mongo -p 27017:27017 mongo:7
 
 ## Run ProofLoop
 
-With `npm run dev` still running in `frontend/`:
+From the repo root (a second terminal — keep `npm run dev` running in `frontend/`):
 
 ```bash
 npm i -g @testmuai/kane-cli && kane-cli login   # or: kane-cli login --oauth
 node proofloop/src/cli.ts verify --all
 ```
 
-Expected: four `✓ … replay` lines and `VERIFIED — 4/4 flows proven in a real browser`, exit 0.
-Replaying the recordings committed under `kane/output-*/` costs 0 credits — only re-authoring a
-test after its prose changes spends credits. Then open `http://localhost:3000/proofloop` to see
-the same verdict as a live status page: flows verified, repair iterations, evidence.
+Expected: four `✓ …` lines and `VERIFIED — 4/4 flows proven in a real browser`, exit 0. The
+first run authors each test (spends credits); subsequent runs replay the committed
+`kane/output-*/` recordings at 0 credits. Then open `http://localhost:3000/proofloop` to see the
+same verdict as a live status page: flows verified, repair iterations, evidence.
 
 Set `PROOFLOOP_DISABLED=1` to skip the Stop hook entirely (e.g. `npm run dev` isn't running).
 
@@ -60,8 +60,8 @@ Stop hook  ──►  node proofloop/src/cli.ts hook        (.claude/settings.js
                   ├─ parse NDJSON    terminal `run_end` per flow (status/reason/summary/final_state/run_dir/test_url)
                   ├─ record          .proofloop/latest.json, .proofloop/history.jsonl, .proofloop/evidence/<run>/
                   ├─ PASS            allow stop  + systemMessage "✅ ProofLoop: N/N flows verified"
-                  └─ FAIL            {"decision":"block","reason":"<structured failure report>"}
-                                     → Claude continues, fixes code → next stop re-fires Kane
+                  └─ FAIL            exit code 2 + structured reason on stderr
+                                     → Claude reads it, fixes code → next stop re-fires Kane
 ```
 
 The Stop-hook decision policy (`proofloop hook`):
@@ -70,7 +70,7 @@ The Stop-hook decision policy (`proofloop hook`):
 |---|---|---|
 | No changed files under `frontend/` | allow (no output) | Plain conversation turns must never launch Chrome. |
 | `verify` → verdict `verified` | allow + `systemMessage: "✅ ProofLoop: N/N flows verified in a real browser (Xs)"` | Make the proof visible in the transcript. |
-| `verify` → verdict `failed` and attempts < 3 | `{"decision":"block","reason":<report>}` | Claude must keep working. |
+| `verify` → verdict `failed` and attempts < 3 | exit code 2 with a structured reason on stderr (Claude reads it and keeps working) | Claude must keep working. |
 | `verify` → verdict `failed` and attempts ≥ 3 | allow + `systemMessage: "⛔ ProofLoop: 3 attempts exhausted — human needed. See .proofloop/latest.json"` | Never trap the agent forever. |
 | preflight/infra error (exit 2/3) | allow + `systemMessage` warning | An unreachable dev server is not a code failure. |
 
@@ -93,8 +93,9 @@ plain-English Markdown test Kane replays step by step in a real browser:
 
 ```
 frontend/    Next.js 16 + React 19 app — bookings, units, cleaning, payouts, ledger, /demo, /proofloop
-proofloop/   Zero-dependency Node ≥ 24 CLI: verify | hook | report (npm test → 33 unit tests)
-kane/        The four *_test.md flows above, plus committed output-*/ replay recordings
+proofloop/   Zero-dependency Node ≥ 24 CLI: verify | hook | report (npm test → 34 unit tests)
+kane/        The four *_test.md flows above; each grows a committed output-<stem>/ replay
+             recording the first time `verify` authors it
 .claude/     Stop hook wiring (settings.json)
 .testmuai/   Kane project context + variables (app_url)
 docs/        This spec's design doc, the demo script, the submission paragraph
@@ -103,9 +104,10 @@ docs/        This spec's design doc, the demo script, the submission paragraph
 ## Credits / replay
 
 Kane CLI runs cost credits only when a test is **authored or re-authored** (its prose changed).
-Once a test is green, its `kane/output-<stem>/` recording is committed to the repo, and
-`kane-cli testmd run --agent` / `node proofloop/src/cli.ts verify` **replay** that recording
-against the live app for free. CI and every Stop-hook invocation are replays, not authoring
-runs — the only credit spend in this repo's history is the four initial authoring passes.
+The first run of a given `kane/*_test.md` authors it and spends credits; once it's green, its
+`kane/output-<stem>/` recording is committed to the repo, and every subsequent
+`kane-cli testmd run --agent` / `node proofloop/src/cli.ts verify` **replays** that recording
+against the live app for free. Every Stop-hook invocation after the first successful authoring
+run is a free replay.
 
 **Demo video:** _coming before submission_

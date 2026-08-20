@@ -4,6 +4,14 @@ Source table: `docs/superpowers/specs/2026-08-20-proofloop-design.md` §8. This 
 table expanded into a shot list — what's on screen, what's said, and what has to be true before
 recording starts.
 
+## Prerequisite: author every test from the CLI
+
+Author all four tests from the CLI (`node proofloop/src/cli.ts verify --all`, from the repo
+root) before any hook run; never let the first authoring run happen inside a Stop hook. This is
+the only step that authors every flow at once and spends credits doing it — it also writes the
+`kane/output-*/` recordings the rest of the loop (and the recorded demo) replays for free. A
+Stop hook that has to author every flow from scratch will blow its own time budget.
+
 ## Before recording: commit the acceptance-criteria change
 
 The demo's whole point is showing Kane catch a real regression and Claude fix it — not a staged
@@ -40,6 +48,9 @@ spec would change, and the failing test is committed like any other spec update:
    pre-script Claude's fix, and do not retake a passing run to look cleaner — the browser
    evidence is the pitch.
 
+6. Do not commit before ending the turn — ProofLoop verifies the uncommitted diff; a pre-stop
+   commit would skip verification. Let Claude's edits stay uncommitted until the loop verifies.
+
 ## The prompt
 
 > Add a 10% platform fee to every booking and show it in the profitability breakdown.
@@ -54,7 +65,7 @@ spec would change, and the failing test is committed like any other spec update:
 | 0:10–0:35 | Lynx dashboard tour | Walk `/dashboard`: units, bookings, cleaning work orders, vendor payouts, the Profitability card on Overview. | Freshly reset via `/demo` → "Reset & launch demo" so the seed state is deterministic. |
 | 0:35–1:00 | Claude Code terminal | Paste the exact prompt above into a fresh session. Claude reads the code, edits `frontend/lib/ledger.ts` / `frontend/components/dashboard/profitability-card.tsx` (or wherever it lands), then tries to stop. | This is the only prompt given — no hints about ProofLoop or Kane. |
 | 1:00–1:30 | Stop hook firing | Terminal shows `proofloop hook`: CHANGE DETECTED under `frontend/` → impacted flows resolved from `proofloop.map.json` → Kane opens headless Chrome, creates the $1,000 booking, checks out, completes the turnover clean… ❌ `Net showed $680.00, expected $780.00` (or whatever Kane actually reports). | Whatever Kane's real `run_end.reason` says — do not rewrite it for the recording. |
-| 1:30–2:00 | Claude Code transcript | The structured block `reason` appears in Claude's context. Claude diagnoses the diff between what it wrote and what the flow asserts, edits the code again, tries to stop a second time. Kane re-runs → ✅ (or the real outcome, including a third attempt if that's what happens). | If it takes more than one repair loop, keep that in the cut — it's the demonstration, not a blooper. |
+| 1:30–2:00 | Claude Code transcript | The structured block reason (exit code 2, reason on stderr) appears in Claude's context. Claude diagnoses the diff between what it wrote and what the flow asserts, edits the code again, tries to stop a second time. Kane re-runs → ✅ (or, if attempt 2 also fails, that's the last automatic repair round — `MAX_ATTEMPTS = 3` means attempts 1 and 2 block and a third failure allows the stop with a human-needed message instead of retrying again). | If it takes a second repair loop, keep that in the cut — it's the demonstration, not a blooper. Do not narrate a third automatic retry; there isn't one. |
 | 2:00–2:30 | `http://localhost:3000/proofloop` | Open the status page: flows verified, repair iteration count, evidence links. Click through to a Kane screenshot / run URL. | Confirms the loop's output is inspectable, not just a terminal log. |
 | 2:30–2:55 | Close | *"Every critical Lynx workflow is a readable Kane test. ProofLoop maps AI changes to affected flows, Kane runs them in a real browser, and failures go straight back to the agent. The agent doesn't decide when it's done. The browser evidence does."* | End on the verified `/proofloop` page or the final green terminal output. |
 
