@@ -5,12 +5,14 @@
  *   node proofloop/src/cli.ts verify [--changed | --all | --flow <name>] [--json] [--timeout <s>]
  *   node proofloop/src/cli.ts hook            # Claude Code Stop hook (reads hook JSON on stdin)
  *   node proofloop/src/cli.ts report [--json] # print the latest verdict
+ *   node proofloop/src/cli.ts init [--app-url <url>] [--force]  # install ProofLoop into this repo
  */
 import { appendFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 
 import { gitRoot } from "./diff.ts";
 import { runHook } from "./hook.ts";
+import { runInit } from "./init.ts";
 import { formatConsole, proofloopDir, readLatest, type VerifyReport } from "./report.ts";
 import { runVerify } from "./verify.ts";
 
@@ -32,6 +34,15 @@ async function readStdin(): Promise<string> {
 
 async function main(): Promise<number> {
   const [command = "help", ...args] = process.argv.slice(2);
+
+  if (command === "init") {
+    // Doesn't use gitRoot(process.cwd()) below: init must handle "not a git repo" itself
+    // (exit 2) rather than crashing before it gets a chance to report that cleanly.
+    const result = runInit({ cwd: process.cwd(), appUrl: option(args, "--app-url"), force: flag(args, "--force") });
+    process.stdout.write(`${result.lines.join("\n")}\n`);
+    return result.code;
+  }
+
   const root = gitRoot(process.cwd());
 
   if (command === "verify") {
@@ -95,6 +106,10 @@ async function main(): Promise<number> {
       "  verify [--changed | --all | --flow <name>] [--json] [--timeout <s>]",
       "  hook                      Claude Code Stop hook adapter (stdin JSON → exit 0 allow / exit 2 block)",
       "  report [--json]           Show the latest verdict",
+      "  init [--app-url <url>] [--force]",
+      "                            Install ProofLoop into the current repo: .claude/settings.json Stop",
+      "                            hook, proofloop.map.json, .testmuai/{context.md,variables/local.json},",
+      "                            kane/smoke_test.md. Skips files that already exist unless --force.",
       "",
       "Env: PROOFLOOP_DISABLED=1 skips the hook · PROOFLOOP_KANE_BIN overrides the kane-cli binary",
     ].join("\n") + "\n",
