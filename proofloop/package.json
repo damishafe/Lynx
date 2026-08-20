@@ -1,0 +1,13 @@
+{
+  "name": "proofloop",
+  "private": true,
+  "type": "module",
+  "description": "Every AI-written change must prove itself in a real browser (Kane CLI) before Claude Code may finish.",
+  "engines": { "node": ">=22.18" },
+  "scripts": {
+    "test": "node --test",
+    "verify": "node src/cli.ts verify --changed",
+    "verify:all": "node src/cli.ts verify --all",
+    "report": "node src/cli.ts report"
+  }
+}
