@@ -2,6 +2,7 @@ import type { HugeiconsIcon } from "@hugeicons/react";
 import {
   AnalyticsUpIcon,
   Building01Icon,
+  Calendar03Icon,
   CreditCardIcon,
   HelpCircleIcon,
   HomeIcon,
@@ -29,6 +30,7 @@ export const PRIMARY_NAV: NavItem[] = [
     match: (p) => p === "/dashboard",
   },
   { label: "Units", href: "/dashboard/units", icon: Building01Icon },
+  { label: "Bookings", href: "/dashboard/bookings", icon: Calendar03Icon },
   {
     label: "Activity",
     href: "/dashboard/activity",
