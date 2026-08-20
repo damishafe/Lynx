@@ -1,6 +1,6 @@
 # Demo script (≤ 3:00, interesting part first)
 
-Source table: `frontend/docs/superpowers/specs/2026-08-20-proofloop-design.md` §8. This is that
+Source table: `docs/superpowers/specs/2026-08-20-proofloop-design.md` §8. This is that
 table expanded into a shot list — what's on screen, what's said, and what has to be true before
 recording starts.
 
