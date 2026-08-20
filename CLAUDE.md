@@ -58,3 +58,7 @@ Do not invent APIs from memory. If the docs disagree with what you "know," the d
 ## State of the project
 
 The frontend is a working Next.js 16 app with auth, units, work orders, vendors, billing, reports, and a seeded demo path. Follow existing patterns in `frontend/app/` and `frontend/lib/` when adding features.
+
+## ProofLoop (hackathon verification layer)
+
+`proofloop/` is a zero-dependency CLI wired into Claude Code's Stop hook (`.claude/settings.json`). When you end a turn with uncommitted changes under `frontend/`, it maps them to business flows (`proofloop/proofloop.map.json`), runs the matching `kane/*_test.md` in real Chrome via Kane CLI, and **blocks the stop with Kane's failure report** until the flow passes (max 3 attempts). Requirements: `npm run dev` running in `frontend/`, `kane-cli login` done. Set `PROOFLOOP_DISABLED=1` to skip. Never edit `kane/*_test.md` to make a failing app pass. Run `node proofloop/src/cli.ts verify --all` to replay every flow; `npm test` in `proofloop/` runs the unit tests.
