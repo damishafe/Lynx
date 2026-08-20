@@ -1,5 +1,5 @@
 {
-  "commit_id": "f9196e43-2132-4fbe-99dd-823bbf012b4c",
+  "commit_id": "a891d138-e7b4-4808-a542-48b689700c1f",
   "test_id": "6ea41acb-f0a8-4842-bb3a-7d5be878efeb",
   "testcase_id": "01M0GCAMAF0EN1RKTD3PMDW7J8",
   "project_id": "01M0GB1M5XXC0WG4K2WXVCMKGS",
@@ -8,11 +8,25 @@
   "session_name": "profit-invariant",
   "executions": [
     {
-      "execution_id": "6f923cb1-65ea-4df8-bacb-082642fc5677",
+      "execution_id": "ed8399b8-6379-4021-a61d-37a8b5f62d7b",
       "run_kind": "author",
       "status": "passed",
       "valid": true,
-      "at": "2026-08-20T20:10:21.992Z"
+      "at": "2026-08-20T20:43:57.669Z"
+    },
+    {
+      "execution_id": "42664b82-fb49-4983-8bb2-3bd8d677db47",
+      "run_kind": "replay",
+      "status": "passed",
+      "valid": true,
+      "at": "2026-08-20T20:44:37.793Z"
+    },
+    {
+      "execution_id": "bb9f0d0e-8f6e-46d5-baf3-aac4ab13358b",
+      "run_kind": "replay",
+      "status": "passed",
+      "valid": true,
+      "at": "2026-08-20T20:45:15.630Z"
     }
   ]
 }

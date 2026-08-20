@@ -118,7 +118,8 @@ export async function runHook(stdinText: string, root: string, overrides: Partia
   if (report.verdict === "failed") {
     attemptsAfter = previous + 1;
     writeAttempts(root, sessionId, attemptsAfter);
-  } else if (report.verdict === "verified") {
+  } else if (report.verdict === "verified" || report.verdict === "nothing-to-verify") {
+    // Verified, or the risky change is gone (reverted/committed): the repair loop is over.
     clearAttempts(root, sessionId);
     attemptsAfter = 0;
   }

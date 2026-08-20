@@ -146,3 +146,16 @@ test("testmd mode: a run_end is not terminal — later steps are still parsed", 
   assert.equal(r.failedMdStep?.heading, "b");
   assert.equal(deriveOutcome(r, 1), "failed");
 });
+
+test("context.variables and context.memory checks are surfaced (kane-cli 0.8.4 replay shape)", () => {
+  const p = createRunParser();
+  p.line('{"type":"test_md_step_start","step_index":6,"heading":"Costs reflect the completed clean"}');
+  p.line(JSON.stringify({ type: "run_end", status: "failed", reason: 'Final verification failed: "{{costs}} equals \\"$120.00\\""', final_state: {}, context: { memory: { costs: { extracted_value: "$240.00", expected_value: "", operator: "equals", reasoning: "value: '$240.00' (stored, no comparison)" }, costs_equals_120_00_check: { extracted_value: "$240.00", expected_value: "$120.00", operator: "equals", reasoning: "value: '$240.00' -> '$240.00' after ['strip']; equals '$120.00' -> FAIL" } }, variables: { costs: { value: "$240.00" } } } }));
+  p.line('{"type":"test_md_step_end","step_index":6,"status":"failed"}');
+  p.line('{"type":"test_md_summary","overall_status":"failed","steps":{"total":7,"passed":5,"failed":1,"replay_decisions":5,"author_decisions":2}}');
+  p.line('{"type":"test_md_done","overall_status":"failed"}');
+  const r = p.end();
+  assert.equal(r.finalState.costs, "$240.00");
+  assert.equal(r.checks.length, 1);
+  assert.deepEqual(r.checks[0], { name: "costs_equals_120_00_check", observed: "$240.00", expected: "$120.00", operator: "equals", passed: false });
+});

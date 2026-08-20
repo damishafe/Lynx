@@ -132,6 +132,7 @@ export async function runVerify(opts: VerifyOptions, overrides: Partial<VerifyDe
           summary: "",
           oneLiner: "",
           finalState: {},
+          checks: [],
           failedStep: null,
           stepsTotal: 0,
           durationS: 0,
@@ -184,6 +185,7 @@ export async function runVerify(opts: VerifyOptions, overrides: Partial<VerifyDe
         summary: failedRunEnd?.summary ?? end?.summary ?? "",
         oneLiner: failedRunEnd?.one_liner ?? end?.one_liner ?? "",
         finalState: parsed.finalState,
+        checks: parsed.checks,
         failedStep: failed
           ? { step: failed.index, remark: `${failed.heading} — ${failed.runEnd?.one_liner ?? failed.status}` }
           : parsed.failedStep

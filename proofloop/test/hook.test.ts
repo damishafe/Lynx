@@ -15,7 +15,7 @@ function report(verdict: VerifyReport["verdict"]): VerifyReport {
       flow: "profit", title: "Profit", test: "kane/profit-invariant_test.md",
       status: verdict === "verified" ? "passed" : verdict === "failed" ? "failed" : "error",
       exitCode: verdict === "verified" ? 0 : 1, reason: "Net showed $680.00, expected $780.00", summary: "", oneLiner: "",
-      finalState: { net: "$680.00" }, failedStep: { step: 3, remark: "net mismatch" }, stepsTotal: 3,
+      finalState: { net: "$680.00" }, checks: [{ name: "net_check", observed: "$680.00", expected: "$780.00", operator: "equals", passed: false }], failedStep: { step: 3, remark: "net mismatch" }, stepsTotal: 3,
       durationS: 10, credits: 0, replayed: true, runDir: null, testUrl: null, evidence: { screenshot: null, actions: null },
     }],
     verdict,

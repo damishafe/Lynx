@@ -15,7 +15,7 @@ Click "Bookings" in the left sidebar, click "New booking", select "Unit 7 · Har
 Click the "Check out" button on the "Sarah Johnson" row and wait until its status reads "Checked out". Click "Work orders" in the left sidebar and click "Complete" on the row titled "Turnover clean · Unit 7 · Harbor". Assert that row shows "Completed".
 
 ## Open the Overview
-Click "Overview" in the left sidebar and wait until the "Profitability" card is visible.
+Go to {{app_url}}/dashboard and wait until the "Profitability" card is visible.
 
 ## Revenue is recognised
 In the "Profitability" card, store the amount shown next to "Revenue" as 'revenue' and assert it equals "$1,000.00".

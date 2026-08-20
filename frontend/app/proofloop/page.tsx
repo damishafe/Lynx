@@ -197,6 +197,12 @@ function FlowRow({ r }: { r: FlowResult }) {
           <div className="text-sm">
             <p className="font-semibold text-rose-700">Kane: {r.reason || r.summary}</p>
             {r.failedStep && <p className="mt-1 font-medium text-gray-600">Step {r.failedStep.step}: {r.failedStep.remark}</p>}
+            {(r.checks ?? []).filter((c) => c.passed !== true).map((c) => (
+              <p key={c.name} className="mt-2 rounded-xl bg-white/70 border border-rose-100 px-3 py-2 font-semibold tabular-nums text-zinc-900">
+                Observed <span className="text-rose-700">{c.observed || "(nothing)"}</span> · expected {c.expected}
+                <span className="ml-2 text-[11px] font-medium text-gray-500">({c.operator})</span>
+              </p>
+            ))}
             {Object.keys(r.finalState).length > 0 && (
               <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
                 {Object.entries(r.finalState).map(([k, val]) => (

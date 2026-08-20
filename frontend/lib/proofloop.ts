@@ -14,6 +14,8 @@ export type FlowResult = {
   summary: string;
   oneLiner: string;
   finalState: Record<string, unknown>;
+  /** Kane's recorded assertions: observed vs expected. */
+  checks?: { name: string; observed: string; expected: string; operator: string; passed: boolean | null }[];
   failedStep: { step: number; remark: string } | null;
   stepsTotal: number;
   durationS: number;

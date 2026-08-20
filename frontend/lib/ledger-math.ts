@@ -21,3 +21,5 @@ export function computeLedger(inputs: LedgerInputs): Ledger {
   const costsCents = Math.abs(Math.round(inputs.workOrderCostCents));
   return { revenueCents, costsCents, netCents: revenueCents - costsCents };
 }
+
+// Ledger figures are read by Kane in real Chrome before any change here can ship (see proofloop/).

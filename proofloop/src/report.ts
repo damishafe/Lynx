@@ -15,6 +15,8 @@ export type FlowResult = {
   summary: string;
   oneLiner: string;
   finalState: Record<string, unknown>;
+  /** Kane's recorded assertions: observed vs expected (from context.memory). */
+  checks: { name: string; observed: string; expected: string; operator: string; passed: boolean | null }[];
   failedStep: { step: number; remark: string } | null;
   stepsTotal: number;
   durationS: number;
@@ -136,7 +138,8 @@ function fmtState(state: Record<string, unknown>): string {
 export function formatConsole(report: VerifyReport): string {
   const lines: string[] = [];
   lines.push(`ProofLoop ${report.id} · trigger=${report.trigger} · attempt=${report.attempt}`);
-  lines.push(`Changed: ${report.changedFiles.length ? report.changedFiles.join(", ") : "(none)"}`);
+  const shown = report.changedFiles.filter((f) => f.startsWith("frontend/") && !report.ignored.includes(f));
+  lines.push(`Changed: ${shown.length ? shown.join(", ") : "(none)"}`);
   if (report.unmapped.length) lines.push(`Unmapped (ran fallback): ${report.unmapped.join(", ")}`);
   if (report.preflight && !report.preflight.ok) lines.push(`Preflight: ${report.preflight.message}`);
   lines.push("");
@@ -146,6 +149,7 @@ export function formatConsole(report: VerifyReport): string {
       lines.push(`    reason: ${r.reason || "(none)"}`);
       if (r.failedStep) lines.push(`    step ${r.failedStep.step}: ${r.failedStep.remark}`);
       lines.push(`    observed: ${fmtState(r.finalState)}`);
+      for (const c of (r.checks ?? []).filter((c) => c.passed !== true)) lines.push(`    check ${c.name}: observed ${c.observed} — expected ${c.expected} (${c.operator})`);
       if (r.evidence.screenshot) lines.push(`    screenshot: ${r.evidence.screenshot}`);
       if (r.testUrl) lines.push(`    kane: ${r.testUrl}`);
     }
@@ -177,13 +181,17 @@ export function buildBlockReason(report: VerifyReport, attempt: number, maxAttem
     lines.push(`✗ ${r.flow} — ${r.test}`);
     lines.push(`  Kane: "${r.reason || r.summary || "no reason reported"}"`);
     lines.push(`  Observed final_state: ${fmtState(r.finalState)}`);
+    for (const c of (r.checks ?? []).filter((c) => c.passed !== true)) {
+      lines.push(`  Check "${c.name}": observed ${c.observed || "(nothing)"} — expected ${c.expected} (${c.operator}) → FAIL`);
+    }
     if (r.failedStep) lines.push(`  Failed at step ${r.failedStep.step}: "${r.failedStep.remark}"`);
     if (r.evidence.screenshot) lines.push(`  Screenshot: ${r.evidence.screenshot}`);
     if (r.evidence.actions) lines.push(`  Action log: ${r.evidence.actions}`);
     if (r.testUrl) lines.push(`  Kane run: ${r.testUrl}`);
     lines.push("");
   }
-  lines.push(`Changed files: ${report.changedFiles.join(", ") || "(none)"}`);
+  const appFiles = report.changedFiles.filter((f) => f.startsWith("frontend/") && !report.ignored.includes(f));
+  lines.push(`Changed files: ${appFiles.join(", ") || "(none)"}`);
   lines.push(
     "Fix the application code so the flow passes. Do not edit kane/*_test.md to make it pass unless the requirement itself changed.",
   );

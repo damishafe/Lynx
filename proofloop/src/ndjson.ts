@@ -61,6 +61,9 @@ export type TestMdStep = {
   runEnd: RunEnd | null;
 };
 
+/** An extraction/assertion Kane recorded in `context.memory` (observed vs expected). */
+export type Check = { name: string; observed: string; expected: string; operator: string; passed: boolean | null };
+
 export type ProgressEvent = { step: number; status: string; remark: string };
 export type TypedEvent = { type: string } & Record<string, unknown>;
 
@@ -69,8 +72,10 @@ export type ParsedRun = {
   runEnd: RunEnd | null;
   /** Every run_end seen (one per testmd step). */
   runEnds: RunEnd[];
-  /** final_state merged across all run_ends (later steps win). */
+  /** final_state (+ named context.variables) merged across all run_ends (later steps win). */
   finalState: Record<string, unknown>;
+  /** Assertions/extractions with an expected value, across all run_ends. */
+  checks: Check[];
   steps: ProgressEvent[];
   events: TypedEvent[];
   failedStep: ProgressEvent | null;
@@ -84,11 +89,48 @@ export type ParsedRun = {
 
 export type Outcome = "passed" | "failed" | "error";
 
+/**
+ * kane-cli 0.8.x puts "store X as 'name'" values in `context.variables[name].value`
+ * and every analyzer check in `context.memory[key]` with `extracted_value` /
+ * `expected_value` / `operator` / `reasoning` (ending in PASS or FAIL). Replayed
+ * steps often leave `final_state` empty, so this is where the observed values
+ * for a failure report actually live.
+ */
+function absorbContext(end: RunEnd, result: ParsedRun): void {
+  const ctx = end.context;
+  if (!ctx) return;
+  const vars = ctx.variables as Record<string, { value?: unknown }> | undefined;
+  if (vars && typeof vars === "object") {
+    for (const [name, v] of Object.entries(vars)) {
+      const value = v && typeof v === "object" ? v.value : undefined;
+      if (typeof value === "string" && value.trim() && !(name in result.finalState)) result.finalState[name] = value;
+    }
+  }
+  const mem = ctx.memory as Record<string, Record<string, unknown>> | undefined;
+  if (mem && typeof mem === "object") {
+    for (const [name, m] of Object.entries(mem)) {
+      if (!m || typeof m !== "object") continue;
+      const expected = m.expected_value;
+      if (typeof expected !== "string" || !expected.trim()) continue;
+      const reasoning = typeof m.reasoning === "string" ? m.reasoning : "";
+      const passed = /->\s*PASS\b/.test(reasoning) ? true : /->\s*FAIL\b/.test(reasoning) ? false : null;
+      result.checks.push({
+        name,
+        observed: String(m.extracted_value ?? ""),
+        expected,
+        operator: String(m.operator ?? "equals"),
+        passed,
+      });
+    }
+  }
+}
+
 export function createRunParser() {
   const result: ParsedRun = {
     runEnd: null,
     runEnds: [],
     finalState: {},
+    checks: [],
     steps: [],
     events: [],
     failedStep: null,
@@ -125,6 +167,7 @@ export function createRunParser() {
       if (end.final_state && typeof end.final_state === "object") {
         Object.assign(result.finalState, end.final_state);
       }
+      absorbContext(end, result);
       if (inTestMd) {
         stepRunEnd = end; // the step's verdict arrives with test_md_step_end
       } else {
