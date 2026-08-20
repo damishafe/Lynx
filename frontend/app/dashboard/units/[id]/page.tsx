@@ -17,6 +17,7 @@ import { listActivityForEntity } from "@/lib/activity";
 import {
   defaultProfitWindowStart,
   formatAmount,
+  formatUnsignedAmount,
   listPayoutsForUnit,
   type PayoutDoc,
 } from "@/lib/payouts";
@@ -356,7 +357,7 @@ export default async function UnitDetailPage({
               <div className="grid grid-cols-2 gap-3 pt-2">
                 <ProfitRow
                   label="Revenue"
-                  value={formatRevenue(unit.monthlyRevenueCents)}
+                  value={formatUnsignedAmount(monthlyRevenueCents)}
                   sub="per month"
                   positive
                 />
