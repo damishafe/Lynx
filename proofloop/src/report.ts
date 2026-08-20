@@ -1,6 +1,6 @@
 import { appendFileSync, copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
-import { join, relative } from "node:path";
+import { join, relative, resolve } from "node:path";
 
 export type FlowStatus = "passed" | "failed" | "error";
 export type Verdict = "verified" | "failed" | "error" | "nothing-to-verify";
@@ -18,8 +18,8 @@ export type FlowResult = {
   failedStep: { step: number; remark: string } | null;
   stepsTotal: number;
   durationS: number;
-  credits: number;
-  /** credits === 0 means Kane replayed cached recordings. */
+  credits: number | null;
+  /** credits === 0 means Kane replayed cached recordings; null means credits were never reported. */
   replayed: boolean;
   runDir: string | null;
   testUrl: string | null;
@@ -106,7 +106,7 @@ export function collectEvidence(
 ): FlowResult["evidence"] {
   const out: FlowResult["evidence"] = { screenshot: null, actions: null };
   if (!runDir) return out;
-  const src = expandHome(runDir);
+  const src = resolve(root, expandHome(runDir));
   if (!existsSync(src)) return out;
   const dest = join(proofloopDir(root), "evidence", id, flow);
   mkdirSync(dest, { recursive: true });
@@ -141,7 +141,7 @@ export function formatConsole(report: VerifyReport): string {
   if (report.preflight && !report.preflight.ok) lines.push(`Preflight: ${report.preflight.message}`);
   lines.push("");
   for (const r of report.results) {
-    lines.push(`${ICON[r.status]} ${r.flow.padEnd(10)} ${r.status.padEnd(7)} ${r.durationS}s ${r.replayed ? "replay" : `${r.credits} credits`}  ${r.test}`);
+    lines.push(`${ICON[r.status]} ${r.flow.padEnd(10)} ${r.status.padEnd(7)} ${r.durationS}s ${r.replayed ? "replay" : `${r.credits ?? "?"} credits`}  ${r.test}`);
     if (r.status !== "passed") {
       lines.push(`    reason: ${r.reason || "(none)"}`);
       if (r.failedStep) lines.push(`    step ${r.failedStep.step}: ${r.failedStep.remark}`);
@@ -171,7 +171,7 @@ export function buildBlockReason(report: VerifyReport, attempt: number, maxAttem
   lines.push("");
   for (const r of report.results) {
     if (r.status === "passed") {
-      lines.push(`✓ ${r.flow} — passed (${r.replayed ? "replayed, 0 credits" : `${r.credits} credits`})`);
+      lines.push(`✓ ${r.flow} — passed (${r.replayed ? "replayed, 0 credits" : `${r.credits ?? "?"} credits`})`);
       continue;
     }
     lines.push(`✗ ${r.flow} — ${r.test}`);

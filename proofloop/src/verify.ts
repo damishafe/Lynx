@@ -13,7 +13,8 @@ export type VerifyOptions = {
   flow?: string;
   trigger: "hook" | "cli";
   attempt: number;
-  timeoutS?: number; // per test, default 420
+  timeoutS?: number; // per test, default 300
+  budgetS?: number; // wall-clock budget across all tests, default 1250
 };
 
 export type VerifyDeps = {
@@ -108,6 +109,7 @@ export async function runVerify(opts: VerifyOptions, overrides: Partial<VerifyDe
   deps.log(`ProofLoop: ${changedFiles.length} changed file(s) → ${flows.length} flow(s): ${flows.join(", ")}`);
   if (impact.unmapped.length) deps.log(`ProofLoop: unmapped changes (running fallback): ${impact.unmapped.join(", ")}`);
 
+  const budgetS = opts.budgetS ?? 1250;
   const results: FlowResult[] = [];
   const seenTests = new Set<string>();
   for (const flow of flows) {
@@ -115,13 +117,40 @@ export async function runVerify(opts: VerifyOptions, overrides: Partial<VerifyDe
     for (const test of def.tests) {
       if (seenTests.has(test)) continue;
       seenTests.add(test);
+
+      const elapsedS = (deps.now().getTime() - startedAt.getTime()) / 1000;
+      if (elapsedS > budgetS) {
+        const reason = "skipped: ProofLoop time budget exhausted before this flow could run";
+        deps.log(`⚠ ${flow} — ${reason}`);
+        results.push({
+          flow,
+          title: def.title ?? flow,
+          test,
+          status: "error",
+          exitCode: 3,
+          reason,
+          summary: "",
+          oneLiner: "",
+          finalState: {},
+          failedStep: null,
+          stepsTotal: 0,
+          durationS: 0,
+          credits: null,
+          replayed: false,
+          runDir: null,
+          testUrl: null,
+          evidence: { screenshot: null, actions: null },
+        });
+        continue;
+      }
+
       deps.log(`▶ ${flow} — ${test}`);
       const stderrTail: string[] = [];
       const run = await deps.runTest({
         testPath: test,
         cwd: opts.root,
         variablesFile: VARIABLES_FILE,
-        timeoutS: opts.timeoutS ?? 420,
+        timeoutS: opts.timeoutS ?? 300,
         onStep: (s) => deps.log(`  [${flow}] step ${s.step} ${s.status === "passed" ? "✓" : "✗"} ${s.remark}`),
         onStderr: (chunk) => {
           for (const l of chunk.split("\n")) {
@@ -134,7 +163,7 @@ export async function runVerify(opts: VerifyOptions, overrides: Partial<VerifyDe
       });
       const status = deriveOutcome(run.parsed, run.exitCode);
       const end = run.parsed.runEnd;
-      const credits = typeof end?.credits === "number" ? end.credits : 0;
+      const credits = typeof end?.credits === "number" ? end.credits : null;
       const errorReason =
         status === "error"
           ? `kane-cli exited ${run.exitCode} without a run_end event` +

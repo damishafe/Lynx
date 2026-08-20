@@ -11,7 +11,7 @@ import { join } from "node:path";
 
 import { gitRoot } from "./diff.ts";
 import { runHook } from "./hook.ts";
-import { formatConsole, proofloopDir, readLatest } from "./report.ts";
+import { formatConsole, proofloopDir, readLatest, type VerifyReport } from "./report.ts";
 import { runVerify } from "./verify.ts";
 
 function flag(args: string[], name: string): boolean {
@@ -38,14 +38,25 @@ async function main(): Promise<number> {
     const mode = flag(args, "--all") ? "all" : option(args, "--flow") ? "flow" : "changed";
     const timeoutRaw = option(args, "--timeout");
     const t = Number(timeoutRaw);
-    const report = await runVerify({
-      root,
-      mode,
-      flow: option(args, "--flow"),
-      trigger: "cli",
-      attempt: 1,
-      timeoutS: Number.isFinite(t) && t > 0 ? t : undefined,
-    });
+    let report: VerifyReport;
+    try {
+      report = await runVerify({
+        root,
+        mode,
+        flow: option(args, "--flow"),
+        trigger: "cli",
+        attempt: 1,
+        timeoutS: Number.isFinite(t) && t > 0 ? t : undefined,
+      });
+    } catch (err) {
+      // A CLI typo (unknown --flow name) is a user error, not a crash: report it and exit 2
+      // rather than falling through to the outer crash handler, which forces exit 0 for hooks.
+      if (mode === "flow" && err instanceof Error && err.message.startsWith("Unknown flow")) {
+        process.stderr.write(`${err.message}\n`);
+        return 2;
+      }
+      throw err;
+    }
     process.stdout.write(flag(args, "--json") ? `${JSON.stringify(report, null, 2)}\n` : `${formatConsole(report)}\n`);
     return report.verdict === "verified" || report.verdict === "nothing-to-verify" ? 0 : report.verdict === "failed" ? 1 : 2;
   }

@@ -128,6 +128,37 @@ test("preflight failure short-circuits with an error verdict", async () => {
   assert.ok(existsSync(join(root, ".proofloop", "history.jsonl")));
 });
 
+test("time budget exhausted skips remaining flows with an error result and verdict", async () => {
+  const root = makeRoot();
+  const T0 = new Date("2026-08-20T15:00:00Z");
+  let calls = 0;
+  const now = () => {
+    calls += 1;
+    // First call(s) (startedAt + the first flow's budget check) land at T0; every
+    // call after that lands far enough past T0 to blow the wall-clock budget.
+    return calls <= 2 ? T0 : new Date(T0.getTime() + 2000 * 1000);
+  };
+  const ran: string[] = [];
+  const r = await runVerify(
+    { root, mode: "all", trigger: "cli", attempt: 1 },
+    {
+      ...okDeps,
+      now,
+      getChangedFiles: () => [],
+      runTest: async (o) => {
+        ran.push(o.testPath);
+        return fakeRun("run-passed.ndjson", 0);
+      },
+    },
+  );
+  assert.deepEqual(ran, ["kane/booking_test.md"]);
+  assert.equal(r.results.length, 2);
+  assert.equal(r.results[0].status, "passed");
+  assert.equal(r.results[1].status, "error");
+  assert.match(r.results[1].reason, /time budget/);
+  assert.equal(r.verdict, "error");
+});
+
 test("unmapped files are reported and trigger the fallback flow", async () => {
   const root = makeRoot();
   const r = await runVerify(
