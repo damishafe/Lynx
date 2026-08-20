@@ -14,9 +14,16 @@ export type ActivityType =
   | "vendor.deleted"
   | "payout.created"
   | "payout.completed"
-  | "payout.failed";
+  | "payout.failed"
+  | "booking.created"
+  | "booking.checked_out";
 
-export type ActivityEntityType = "unit" | "vendor" | "payout" | "work_order";
+export type ActivityEntityType =
+  | "unit"
+  | "vendor"
+  | "payout"
+  | "work_order"
+  | "booking";
 
 export type ActivityEvent = {
   _id: ObjectId;

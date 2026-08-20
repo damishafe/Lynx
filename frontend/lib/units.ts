@@ -15,6 +15,10 @@ export type UnitDoc = {
   address?: string;
   /** Monthly recurring revenue in cents. */
   monthlyRevenueCents?: number;
+  /** Flat turnover-clean cost in cents, charged on every checkout. */
+  cleaningFeeCents?: number;
+  /** Preferred cleaning vendor; falls back to the owner's first cleaning vendor. */
+  cleaningVendorId?: ObjectId;
   notes?: string;
   /** Future: Vercel Blob URL for the cover image. */
   coverUrl?: string;
@@ -149,6 +153,8 @@ export type CreateUnitInput = {
   status?: UnitStatus;
   address?: string;
   monthlyRevenueCents?: number;
+  cleaningFeeCents?: number;
+  cleaningVendorId?: ObjectId;
   notes?: string;
   coverUrl?: string;
   isDemo?: boolean;
@@ -166,6 +172,8 @@ export async function createUnit(
     status: input.status ?? "ready",
     address: input.address?.trim() || undefined,
     monthlyRevenueCents: input.monthlyRevenueCents,
+    cleaningFeeCents: input.cleaningFeeCents,
+    cleaningVendorId: input.cleaningVendorId,
     notes: input.notes?.trim() || undefined,
     coverUrl: input.coverUrl,
     isDemo: input.isDemo,
@@ -180,7 +188,14 @@ export async function createUnit(
 export type UpdateUnitInput = Partial<
   Pick<
     UnitDoc,
-    "name" | "type" | "address" | "monthlyRevenueCents" | "notes" | "coverUrl"
+    | "name"
+    | "type"
+    | "address"
+    | "monthlyRevenueCents"
+    | "cleaningFeeCents"
+    | "cleaningVendorId"
+    | "notes"
+    | "coverUrl"
   >
 >;
 

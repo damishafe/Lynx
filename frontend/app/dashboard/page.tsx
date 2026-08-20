@@ -687,6 +687,8 @@ const activityIcon: Record<ActivityEvent["type"], IconType> = {
   "payout.created": MoneyBag01Icon,
   "payout.completed": CheckmarkCircle01Icon,
   "payout.failed": Clock01Icon,
+  "booking.created": Calendar03Icon,
+  "booking.checked_out": CheckmarkCircle01Icon,
 };
 
 function ActivityPreviewCard({ events }: { events: ActivityEvent[] }) {

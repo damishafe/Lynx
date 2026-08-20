@@ -213,6 +213,51 @@ export async function getLatestCompletedWorkOrder(
   );
 }
 
+/** True when the unit has an `assigned` cleaning job — blocks marking it Ready (R4). */
+export async function hasOpenCleaningWorkOrder(
+  ownerId: ObjectId,
+  unitId: ObjectId,
+): Promise<boolean> {
+  const c = await getCollection();
+  const n = await c.countDocuments(
+    {
+      ownerId,
+      unitId,
+      type: "cleaning",
+      status: "assigned",
+      deletedAt: { $exists: false },
+    },
+    { limit: 1 },
+  );
+  return n > 0;
+}
+
+/**
+ * Accrued vendor cost: sum of `completed` work orders (by completedAt), optionally
+ * windowed / per unit. This is the "Costs" line of the ledger (goal.md: expenses =
+ * completed work orders), independent of whether the payout has been paid yet.
+ */
+export async function totalCompletedWorkOrderCostCents(
+  ownerId: ObjectId,
+  opts: { since?: Date; unitId?: ObjectId } = {},
+): Promise<number> {
+  const c = await getCollection();
+  const match: Filter<WorkOrderDoc> = {
+    ownerId,
+    status: "completed",
+    deletedAt: { $exists: false },
+  };
+  if (opts.since) match.completedAt = { $gte: opts.since };
+  if (opts.unitId) match.unitId = opts.unitId;
+  const rows = await c
+    .aggregate<{ total: number }>([
+      { $match: match },
+      { $group: { _id: null, total: { $sum: { $abs: "$costCents" } } } },
+    ])
+    .toArray();
+  return rows[0]?.total ?? 0;
+}
+
 // ---------- Formatting helpers ----------
 
 export function formatWorkOrderType(type: WorkOrderType): string {
