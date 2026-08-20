@@ -15,10 +15,10 @@ Click "Bookings" in the left sidebar, click "New booking", select "Unit 7 · Har
 Click "Work orders" in the left sidebar. Click the "Complete" button on the row titled "Turnover clean · Unit 7 · Harbor". Assert that row now shows "Completed" and the action column reads "Done".
 
 ## The vendor is owed exactly the cleaning fee
-Click "Overview" in the left sidebar. Store the amount shown under "Owed to vendors" as 'owed' and assert it equals "$120.00".
+Go to {{app_url}}/dashboard and wait until the "Owed to vendors" card is visible. Store the dollar amount displayed directly above the label "Owed to vendors" as 'owed' and assert it equals "$120.00".
 
 ## Unit 7 is ready again
-Click "Units" in the left sidebar. Assert the card for "Unit 7 · Harbor" shows the status "Ready".
+Go to {{app_url}}/dashboard/units and wait until the unit cards are visible. Assert the card for "Unit 7 · Harbor" shows the status "Ready".
 
 ## The clean is charged once, not twice
-Click "Overview" in the left sidebar. In the "Profitability" card, store the amount next to "Costs" as 'costs' and assert it equals "$120.00" and not "$240.00".
+Go to {{app_url}}/dashboard and wait until the "Profitability" card is visible. In the "Profitability" card, store the amount shown next to "Costs" as 'costs' and assert it equals "$120.00".
