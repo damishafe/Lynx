@@ -9,7 +9,7 @@ export type KaneRunOptions = {
   variablesFile?: string;
   timeoutS?: number;
   headless?: boolean; // default true
-  retry?: boolean; // default false (see buildKaneArgs)
+  retry?: boolean; // default true (see buildKaneArgs)
   kaneBin?: string;
   onStep?: (step: ProgressEvent) => void;
   onStderr?: (chunk: string) => void;
@@ -29,8 +29,11 @@ export function resolveKaneBin(explicit?: string): string {
 export function buildKaneArgs(opts: KaneRunOptions): string[] {
   const args = ["testmd", "run", opts.testPath, "--agent"];
   if (opts.headless !== false) args.push("--headless");
-  // --retry needs the TMS lock API (basic-auth credentials); OAuth logins reject it. Opt-in.
-  if (opts.retry === true || process.env.PROOFLOOP_KANE_RETRY === "1") args.push("--retry");
+  // --retry: on replay failure Kane restarts with a shrinking replay window and falls back to
+  // re-authoring the step — turning transient analyzer flakes into real verdicts. Needs a
+  // configured project (kane-cli auto-configures one on first run). PROOFLOOP_KANE_RETRY=0 disables.
+  const retry = opts.retry ?? process.env.PROOFLOOP_KANE_RETRY !== "0";
+  if (retry) args.push("--retry");
   if (opts.timeoutS) args.push("--timeout", String(opts.timeoutS));
   if (opts.variablesFile) args.push("--variables-file", opts.variablesFile);
   return args;
