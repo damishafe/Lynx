@@ -1,0 +1,15 @@
+# dependencies
+node_modules/
+
+# env / secrets
+.env*
+!.env.example
+
+# OS / editor
+.DS_Store
+
+# ProofLoop runtime artifacts (run reports, copied evidence)
+.proofloop/
+
+# Kane CLI local scratch
+.testmuai/tests/

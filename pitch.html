@@ -1,0 +1,2426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lynx — Pitch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700,900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  /* Surfaces — slightly cooler black for that premium ink feel */
+  --bg-base: #08080B;
+  --bg-elevated: #111114;
+  --bg-elevated-2: #17171C;
+  --bg-input: #131318;
+  --border: #232329;
+  --border-subtle: #1B1B22;
+  --border-strong: #2E2E37;
+
+  /* Text */
+  --text: #F4F4F6;
+  --text-secondary: #A1A1AA;
+  --text-muted: #71717A;
+  --text-disabled: #52525B;
+
+  /* Accent — Lynx emerald (matches the product brand) */
+  --accent: #10B981;
+  --accent-hover: #34D399;
+  --accent-soft: #6EE7B7;
+  --accent-wash: rgba(16, 185, 129, 0.14);
+  --accent-ring: rgba(16, 185, 129, 0.40);
+
+  /* Statuses */
+  --status-ready: #34D399;
+  --status-occupied: #60A5FA;
+  --status-cleaning: #FBBF24;
+  --status-maintenance: #F87171;
+
+  /* Optical shadows — same language used in the product */
+  --shadow-card: 0 30px 80px -30px rgba(0,0,0,0.55), inset 0 1px 0 0 rgba(255,255,255,0.04);
+  --shadow-glow: 0 0 80px -10px rgba(16,185,129,0.20);
+}
+
+html, body {
+  height: 100svh;
+  overflow: hidden;
+  background: var(--bg-base);
+  font-family: 'Manrope', 'Satoshi', system-ui, sans-serif;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.005em;
+}
+
+/* Ambient brand depth — applies to every slide via .slide::before below */
+.slide {
+  background:
+    radial-gradient(900px 540px at 12% -8%, rgba(16,185,129,0.10), transparent 60%),
+    radial-gradient(800px 480px at 110% 8%, rgba(96,165,250,0.06), transparent 60%),
+    var(--bg-base);
+}
+.slide::after {
+  /* Faint dotted texture so dark surfaces don't feel inert */
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.025) 1px, transparent 0);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, black 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, black 30%, transparent 75%);
+  z-index: 0;
+}
+.slide > * { position: relative; z-index: 1; }
+
+/* Brand mark — small Lynx logo bottom-right of every slide */
+.brand-mark {
+  position: absolute;
+  bottom: 24px;
+  right: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px 6px 6px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 50;
+  pointer-events: none;
+}
+.brand-mark img {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  display: block;
+}
+.brand-mark span {
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: rgba(244,244,246,0.78);
+}
+
+/* Slide 1 brand lockp — replaces the bare eyebrow with a real logo + wordmark */
+.s1-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 14px 8px 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  margin-bottom: 4px;
+}
+.s1-lockup .s1-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: block;
+  box-shadow: 0 8px 22px -8px rgba(16,185,129,0.55);
+}
+.s1-lockup .s1-lockup-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1;
+}
+.s1-lockup .s1-wordmark {
+  font-family: 'Manrope', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.tabular { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+
+.deck {
+  display: flex;
+  width: max-content;
+  height: 100svh;
+}
+
+.slide {
+  flex: 0 0 100vw;
+  width: 100vw;
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  padding: 72px 72px 56px;
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  background: var(--bg-base);
+}
+
+@media (max-width: 768px) {
+  .slide { padding: 64px 24px 56px; }
+}
+
+/* ============ PROGRESS ============ */
+.progress {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  display: flex;
+  gap: 4px;
+  padding: 14px 24px;
+  z-index: 100;
+}
+.progress-seg {
+  flex: 1;
+  height: 2px;
+  background: rgba(244,244,246,0.08);
+  overflow: hidden;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.progress-seg:hover { background: rgba(244,244,246,0.16); }
+.progress-seg .fill {
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
+  transition: width 0.4s ease;
+}
+.progress-seg.done .fill,
+.progress-seg.active .fill { width: 100%; }
+.progress-seg.done .fill { background: rgba(244,244,246,0.4); }
+
+/* ============ TAP ZONES ============ */
+.tap-zones {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  z-index: 50;
+}
+.tap-zone { height: 100%; -webkit-tap-highlight-color: transparent; }
+.tap-prev { width: 33.333%; }
+.tap-next { width: 66.667%; }
+
+/* ============ CHEVRONS ============ */
+.chevron {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 100;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, opacity 0.3s;
+}
+.chevron:hover { background: var(--bg-elevated-2); border-color: var(--border-strong); }
+.chevron svg {
+  width: 14px;
+  height: 14px;
+  stroke: var(--text-secondary);
+  stroke-width: 2;
+  fill: none;
+}
+.chevron-prev { left: 24px; }
+.chevron-next { right: 24px; }
+.chevron.hidden { opacity: 0; pointer-events: none; }
+
+@media (max-width: 768px) {
+  .chevron { width: 32px; height: 32px; }
+  .chevron-prev { left: 12px; }
+  .chevron-next { right: 12px; }
+}
+
+/* ============ DECK META ============ */
+.deck-mark {
+  position: fixed;
+  top: 28px;
+  left: 24px;
+  z-index: 99;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+.mark-logo {
+  width: 18px;
+  height: 18px;
+  background: var(--accent);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1024 1024'%3E%3Cpath d='M 322 232 L 452 232 L 452 642 L 702 642 L 702 772 L 322 772 Z'/%3E%3C/svg%3E") no-repeat center / contain;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1024 1024'%3E%3Cpath d='M 322 232 L 452 232 L 452 642 L 702 642 L 702 772 L 322 772 Z'/%3E%3C/svg%3E") no-repeat center / contain;
+}
+.mark-text {
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+.deck-counter {
+  position: fixed;
+  top: 28px;
+  right: 24px;
+  z-index: 99;
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  pointer-events: none;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============ COMMON TYPOGRAPHY ============ */
+.label {
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.label-accent { color: var(--accent); }
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+.eyebrow .dot {
+  width: 6px; height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+}
+.h1 {
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 600;
+  font-size: clamp(44px, 6.6vw, 104px);
+  letter-spacing: -0.035em;
+  line-height: 0.95;
+  color: var(--text);
+}
+.h2 {
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 600;
+  font-size: clamp(32px, 4.4vw, 56px);
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+  color: var(--text);
+}
+.body {
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(15px, 1.15vw, 17px);
+  line-height: 1.55;
+  color: var(--text-secondary);
+  max-width: 560px;
+}
+.accent { color: var(--accent); }
+.muted { color: var(--text-muted); }
+.subtle { color: var(--text-secondary); }
+
+/* ============ LIVE PILL ============ */
+.live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  border-radius: 100px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.live-pill .live-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--status-ready);
+  box-shadow: 0 0 8px rgba(52,211,153,0.7);
+  animation: live-pulse 2s ease-in-out infinite;
+}
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.live-pill .live-text { color: var(--status-ready); font-weight: 500; }
+
+/* ============ TERMINAL PANEL ============ */
+.terminal {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  font-family: 'Satoshi', sans-serif;
+}
+.terminal-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-elevated);
+}
+.terminal-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+.terminal-bar-left .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--status-ready);
+  box-shadow: 0 0 8px rgba(52,211,153,0.6);
+}
+.terminal-bar-right {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.t-hero {
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+}
+.t-hero-cell .label { font-size: 9px; margin-bottom: 8px; display: block; }
+.t-hero-cell .v {
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 500;
+  font-size: 22px;
+  letter-spacing: -0.015em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  line-height: 1;
+}
+.t-hero-cell .delta {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  margin-top: 6px;
+  color: var(--status-ready);
+  font-variant-numeric: tabular-nums;
+}
+.t-hero-cell .delta.down { color: var(--status-maintenance); }
+
+.t-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 14px;
+}
+.unit-card {
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 14px 12px 13px;
+  transition: border-left-color 200ms ease;
+}
+.unit-card[data-status="ready"] { border-left-color: var(--status-ready); }
+.unit-card[data-status="occupied"] { border-left-color: var(--status-occupied); }
+.unit-card[data-status="cleaning"] { border-left-color: var(--status-cleaning); }
+.unit-card[data-status="maintenance"] { border-left-color: var(--status-maintenance); }
+.uc-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.uc-name {
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--text);
+}
+.uc-id {
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+.uc-label {
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 500;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 3px;
+}
+.uc-metric {
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.uc-meta {
+  display: flex;
+  gap: 14px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-subtle);
+}
+.uc-meta-item .uc-label { margin-bottom: 2px; }
+.uc-meta-item .v {
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 500;
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.v.s-ready { color: var(--status-ready); }
+.v.s-occupied { color: var(--status-occupied); }
+.v.s-cleaning { color: var(--status-cleaning); }
+.v.s-maintenance { color: var(--status-maintenance); }
+
+/* ============ SLIDE 1 — TITLE ============ */
+.s1 { justify-content: center; }
+.s1-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 96px;
+  align-items: center;
+  width: 100%;
+  max-width: 1340px;
+  margin: 0 auto;
+}
+.s1-left .h1 { margin-bottom: 32px; }
+.s1-left .body { font-size: clamp(16px, 1.3vw, 20px); max-width: 520px; }
+.s1-meta {
+  display: flex;
+  gap: 32px;
+  margin-top: 56px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+.s1-meta-item .label { font-size: 10px; margin-bottom: 6px; }
+.s1-meta-item .v {
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.s1-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+}
+.demo-link {
+  display: inline-flex;
+  align-items: center;
+  height: 42px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text);
+  gap: 8px;
+  padding: 0 16px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  transition: color 120ms ease, border-color 120ms ease, background 120ms ease;
+}
+.demo-link:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+  background: var(--bg-elevated-2);
+}
+
+/* ============ SLIDE 2 — PROBLEM ============ */
+.s2-wrap {
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 88px;
+  align-items: center;
+  flex: 1;
+  padding-top: 16px;
+}
+.s2-left .h1 { margin-bottom: 28px; }
+.s2-left .body { margin-bottom: 36px; }
+.pain-list { list-style: none; border-top: 1px solid var(--border); }
+.pain-list li {
+  display: flex;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+  align-items: flex-start;
+}
+.pain-num {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  min-width: 32px;
+  padding-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+.pain-text {
+  font-family: 'Satoshi', sans-serif;
+  font-size: clamp(14px, 1.05vw, 16px);
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.45;
+}
+.pain-text .em { color: var(--text-muted); font-weight: 400; }
+
+.spreadsheet {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: 'Geist Mono', monospace;
+}
+.ss-tabs {
+  display: flex;
+  gap: 0;
+  background: var(--bg-base);
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+}
+.ss-tab {
+  padding: 8px 12px;
+  font-size: 10px;
+  color: var(--text-muted);
+  border-right: 1px solid var(--border);
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+.ss-tab.active { color: var(--text); background: var(--bg-elevated); }
+.ss-tab.error { color: var(--status-maintenance); }
+.ss-grid { display: grid; grid-template-columns: 40px repeat(5, 1fr); }
+.ss-cell {
+  padding: 7px 10px;
+  font-size: 11px;
+  border-right: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ss-cell.h { color: var(--text-muted); background: var(--bg-base); font-size: 10px; letter-spacing: 0.04em; text-transform: uppercase; }
+.ss-cell.row-num { color: var(--text-muted); background: var(--bg-base); font-size: 10px; }
+.ss-cell.error { color: var(--status-maintenance); background: rgba(248,113,113,0.08); font-weight: 500; }
+.ss-cell.error::before { content: "#REF! "; }
+
+/* ============ SLIDE 3 — SHIFT ============ */
+.s3-wrap {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.s3-head { margin-bottom: 56px; max-width: 820px; }
+.s3-head .h1 { margin-bottom: 24px; }
+.s3-head .h1 .em { color: var(--accent); }
+.s3-compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.s3-col { padding: 32px; border-right: 1px solid var(--border); }
+.s3-col:last-child {
+  border-right: none;
+  background: linear-gradient(180deg, rgba(124,92,255,0.04), transparent);
+}
+.s3-col .label { margin-bottom: 24px; display: block; }
+.s3-col-list { list-style: none; }
+.s3-col-list li {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 500;
+  font-size: clamp(14px, 1.1vw, 17px);
+  color: var(--text);
+  line-height: 1.4;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.s3-col-list li:last-child { border-bottom: none; }
+.s3-col-list li::before {
+  content: "−";
+  color: var(--text-disabled);
+  font-family: 'Geist Mono', monospace;
+}
+.s3-col:last-child .s3-col-list li::before {
+  content: "+";
+  color: var(--accent);
+}
+
+/* ============ SLIDE 4 — WHAT'S LIVE ============ */
+.s4-wrap {
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.s4-head { margin-bottom: 48px; display: grid; grid-template-columns: 1.4fr 1fr; gap: 64px; align-items: end; }
+.s4-head .h1 { margin-bottom: 0; }
+.s4-head .h1 .em { color: var(--accent); }
+.s4-head-right { padding-bottom: 8px; }
+.s4-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.feat {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px;
+  background: var(--bg-elevated);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 220px;
+  position: relative;
+}
+.feat-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+.feat-num {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+.shipped-tag {
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--status-ready);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.shipped-tag::before {
+  content: "";
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--status-ready);
+  box-shadow: 0 0 6px rgba(52,211,153,0.6);
+}
+.feat h3 {
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 600;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  line-height: 1.1;
+}
+.feat p {
+  font-family: 'Manrope', sans-serif;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin-top: auto;
+}
+
+/* ============ SLIDE 5 — WOW MOMENT ============ */
+.s5-wrap {
+  width: 100%;
+  max-width: 1340px;
+  margin: 0 auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.s5-head { text-align: center; margin-bottom: 48px; }
+.s5-head .h1 { margin-bottom: 20px; }
+.s5-head .h1 .em { color: var(--accent); }
+.s5-head .body { margin: 0 auto; text-align: center; }
+
+.s5-split {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 32px;
+  align-items: center;
+}
+.s5-bridge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.s5-bridge .pulse {
+  width: 8px; height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 16px var(--accent);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+.s5-bridge-line {
+  width: 1px;
+  height: 60px;
+  background: linear-gradient(to bottom, transparent, var(--accent), transparent);
+}
+.s5-bridge .label { font-size: 9px; }
+
+.phone {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  padding: 14px 14px 18px;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+  font-family: 'Satoshi', sans-serif;
+}
+.phone-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+  padding: 0 4px;
+  font-variant-numeric: tabular-nums;
+}
+.phone-head {
+  padding: 0 4px 14px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 14px;
+}
+.phone-head .label { font-size: 9px; display: block; margin-bottom: 4px; }
+.phone-head .name {
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--text);
+}
+.job {
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--status-cleaning);
+  border-radius: 6px;
+  padding: 12px 13px;
+  margin-bottom: 8px;
+}
+.job-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.job-name { font-family: 'Satoshi', sans-serif; font-weight: 600; font-size: 12px; color: var(--text); }
+.job-pay {
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.job-meta {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+.job-cta {
+  margin-top: 10px;
+  width: 100%;
+  height: 36px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: -0.005em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+  transition: all 200ms ease;
+}
+.job-cta.tapped {
+  transform: scale(0.97);
+  background: #6A48F0;
+}
+.job-cta.complete {
+  background: rgba(52,211,153,0.12);
+  color: var(--status-ready);
+}
+
+.dashboard {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.dash-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+.dash-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  border-bottom: 1px solid var(--border);
+}
+.dash-stat { padding: 16px 18px; border-right: 1px solid var(--border); }
+.dash-stat:last-child { border-right: none; }
+.dash-stat .label { font-size: 9px; display: block; margin-bottom: 6px; }
+.dash-stat .v {
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 500;
+  font-size: 18px;
+  letter-spacing: -0.015em;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  transition: color 300ms ease;
+}
+.dash-stat .v.flashing { color: var(--accent); }
+.dash-units {
+  padding: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.sync-proof {
+  margin-top: 22px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.sync-proof-item {
+  min-height: 58px;
+  padding: 12px 13px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-elevated);
+}
+.sync-proof-item .k {
+  display: block;
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+.sync-proof-item .v {
+  display: block;
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1.25;
+  color: var(--text);
+}
+
+/* ============ ROADMAP SLIDES (6-9) ============ */
+.s-rm-wrap {
+  width: 100%;
+  max-width: 1340px;
+  margin: 0 auto;
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1.05fr;
+  gap: 80px;
+  align-items: center;
+}
+.rm-left { display: flex; flex-direction: column; }
+.rm-pillar-nav {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+.rm-pillar {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--text-disabled);
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-elevated);
+  font-variant-numeric: tabular-nums;
+}
+.rm-pillar.active { color: var(--accent); border-color: var(--accent-wash); background: var(--accent-wash); }
+.rm-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.rm-num {
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 900;
+  font-size: 56px;
+  letter-spacing: -0.04em;
+  color: var(--accent);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  display: block;
+  margin-bottom: 16px;
+}
+.rm-eyebrow .label { font-size: 11px; }
+.rm-h {
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 600;
+  font-size: clamp(32px, 4vw, 56px);
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+  color: var(--text);
+  margin-bottom: 28px;
+}
+.rm-h .em { color: var(--accent); }
+.rm-body {
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(15px, 1.15vw, 17px);
+  line-height: 1.6;
+  color: var(--text-secondary);
+  max-width: 540px;
+  margin-bottom: 24px;
+}
+.rm-list {
+  list-style: none;
+  border-top: 1px solid var(--border);
+  margin-top: 16px;
+}
+.rm-list li {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--text);
+}
+.rm-list li::before {
+  content: "→";
+  color: var(--accent);
+  font-family: 'Geist Mono', monospace;
+  font-size: 13px;
+}
+
+.rm-right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============ Visual Mockups for Roadmap ============ */
+/* Calendar Gantt — slide 6 */
+.gantt {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  width: 100%;
+  font-family: 'Geist Mono', monospace;
+}
+.gantt-head {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+.gantt-cols {
+  display: grid;
+  grid-template-columns: 110px repeat(14, 1fr);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-base);
+}
+.gantt-col-h {
+  padding: 8px 6px;
+  font-size: 9px;
+  color: var(--text-muted);
+  border-right: 1px solid var(--border-subtle);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.gantt-col-h:first-child { text-align: left; padding-left: 14px; }
+.gantt-col-h.weekend { background: rgba(0,0,0,0.2); }
+.gantt-row {
+  display: grid;
+  grid-template-columns: 110px repeat(14, 1fr);
+  height: 32px;
+  border-bottom: 1px solid var(--border-subtle);
+  align-items: center;
+  position: relative;
+}
+.gantt-row:last-child { border-bottom: none; }
+.gantt-unit {
+  padding: 0 14px;
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 500;
+  font-size: 11px;
+  color: var(--text);
+  border-right: 1px solid var(--border-subtle);
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+.gantt-cell {
+  height: 100%;
+  border-right: 1px solid var(--border-subtle);
+  position: relative;
+}
+.gantt-cell.weekend { background: rgba(0,0,0,0.15); }
+.gantt-bar {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 500;
+  font-size: 9px;
+  color: rgba(14,14,17,0.85);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.gantt-bar.bk-blue { background: var(--status-occupied); color: var(--bg-base); }
+.gantt-bar.bk-amber { background: var(--status-cleaning); color: var(--bg-base); }
+.gantt-bar.bk-green { background: var(--status-ready); color: var(--bg-base); }
+.gantt-bar.bk-red { background: var(--status-maintenance); color: var(--bg-base); }
+.gantt-bar.bk-violet { background: var(--accent); color: #fff; }
+
+/* Message preview — slide 7 */
+.msg-preview {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  width: 100%;
+  max-width: 460px;
+}
+.msg-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-base);
+}
+.msg-tab {
+  padding: 11px 14px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  border-right: 1px solid var(--border);
+}
+.msg-tab.active { color: var(--accent); background: var(--bg-elevated); border-bottom: 1px solid var(--accent); margin-bottom: -1px; }
+.msg-body {
+  padding: 24px 22px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text);
+}
+.msg-body .merge {
+  background: var(--accent-wash);
+  color: var(--accent);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+}
+.msg-foot {
+  padding: 12px 22px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+.msg-foot .auto {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent);
+}
+.msg-foot .auto::before {
+  content: "";
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+}
+
+/* Owner statement / AI chat — slide 8 */
+.bi-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 480px;
+}
+.statement {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.statement-head {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.statement-head .t {
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text);
+}
+.statement-head .d {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+.statement-rows { padding: 12px 20px; }
+.statement-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 7px 0;
+  font-family: 'Satoshi', sans-serif;
+  font-size: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.statement-row:last-child { border-bottom: none; padding-top: 12px; margin-top: 4px; border-top: 1px solid var(--border); font-weight: 600; font-size: 14px; }
+.statement-row .l { color: var(--text-secondary); }
+.statement-row .v { color: var(--text); font-variant-numeric: tabular-nums; font-weight: 500; }
+.statement-row.neg .v { color: var(--text-muted); }
+.statement-row:last-child .v { color: var(--accent); }
+
+.ai-chat {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
+.ai-q {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+.ai-q-prompt {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+}
+.ai-q-text {
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--text);
+}
+.ai-a {
+  padding: 4px 4px 0;
+  font-family: 'Manrope', sans-serif;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.ai-a strong { color: var(--text); font-weight: 600; }
+.ai-a .ai-num { color: var(--accent); font-variant-numeric: tabular-nums; font-weight: 500; }
+
+/* Platform — slide 9 */
+.team-vis {
+  width: 100%;
+  max-width: 460px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px;
+}
+.team-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.team-row:last-child { border-bottom: none; }
+.team-av {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text);
+  flex-shrink: 0;
+}
+.team-av.a1 { background: rgba(124,92,255,0.18); color: var(--accent); }
+.team-av.a2 { background: rgba(96,165,250,0.18); color: var(--status-occupied); }
+.team-av.a3 { background: rgba(52,211,153,0.18); color: var(--status-ready); }
+.team-av.a4 { background: rgba(251,191,36,0.18); color: var(--status-cleaning); }
+.team-info { flex: 1; min-width: 0; }
+.team-name {
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.team-role {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+.team-scope {
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-align: right;
+}
+
+/* ============ SLIDE 10 — OPPORTUNITY ============ */
+.s10-wrap {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.s10-head { margin-bottom: 56px; max-width: 880px; }
+.s10-head .h1 { margin-bottom: 24px; }
+.s10-head .h1 .em { color: var(--accent); }
+.s10-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.s10-stat {
+  padding: 40px 28px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.s10-stat:last-child { border-right: none; }
+.s10-stat .label { font-size: 10px; }
+.s10-stat .v {
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 500;
+  font-size: clamp(48px, 5.6vw, 80px);
+  letter-spacing: -0.03em;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  line-height: 0.95;
+}
+.s10-stat.accent .v { color: var(--accent); }
+.s10-stat .v .unit {
+  font-size: 0.4em;
+  color: var(--text-muted);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  margin-left: 6px;
+}
+.s10-stat .desc {
+  font-family: 'Manrope', sans-serif;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.s10-quote {
+  margin-top: 56px;
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 500;
+  font-size: clamp(22px, 2.2vw, 32px);
+  letter-spacing: -0.025em;
+  color: var(--text-secondary);
+  line-height: 1.3;
+  max-width: 880px;
+}
+.s10-quote em { font-style: normal; color: var(--text); }
+
+/* ============ SLIDE 11 — CTA ============ */
+.s11-wrap {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+.s11-wrap .h1 { margin-bottom: 32px; max-width: 800px; }
+.s11-wrap .h1 .em { color: var(--accent); }
+.s11-wrap .body {
+  margin-bottom: 48px;
+  font-size: clamp(16px, 1.3vw, 19px);
+  max-width: 640px;
+}
+.s11-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 28px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 8px;
+  text-decoration: none;
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 600;
+  font-size: 17px;
+  letter-spacing: -0.01em;
+  transition: background 120ms ease;
+  cursor: pointer;
+}
+.s11-cta:hover { background: var(--accent-hover); }
+.s11-cta .arrow { display: inline-block; transition: transform 200ms ease; }
+.s11-cta:hover .arrow { transform: translateX(3px); }
+.s11-meta {
+  margin-top: 64px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 32px;
+  padding-top: 28px;
+  border-top: 1px solid var(--border);
+}
+.s11-meta-item .label { display: block; margin-bottom: 8px; font-size: 10px; }
+.s11-meta-item .v {
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  color: var(--text);
+  letter-spacing: -0.005em;
+}
+
+/* ============ MOBILE ============ */
+@media (max-width: 900px) {
+  .s1-grid, .s2-wrap, .s5-split, .s-rm-wrap, .s4-head { grid-template-columns: 1fr !important; gap: 32px !important; align-items: start; }
+  .s1-right, .s2-right, .s4-head-right, .rm-right { display: none; }
+  .s3-compare { grid-template-columns: 1fr; }
+  .s3-col { border-right: none; border-bottom: 1px solid var(--border); }
+  .s3-col:last-child { border-bottom: none; }
+  .s4-grid { grid-template-columns: 1fr; }
+  .s10-stats { grid-template-columns: 1fr; }
+  .s10-stat { border-right: none; border-bottom: 1px solid var(--border); }
+  .s10-stat:last-child { border-bottom: none; }
+  .s5-split { grid-template-columns: 1fr; }
+  .sync-proof { grid-template-columns: 1fr 1fr; }
+  .s5-bridge { flex-direction: row; }
+  .s5-bridge-line { width: 60px; height: 1px; background: linear-gradient(to right, transparent, var(--accent), transparent); }
+  .s11-meta { grid-template-columns: 1fr; gap: 16px; }
+  .deck-counter { font-size: 10px; }
+  .feat { min-height: auto; }
+  .rm-num { font-size: 40px; }
+}
+
+/* ============ PRODUCT SCREENSHOT FRAME ============ */
+.product-shot {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  box-shadow:
+    0 30px 80px -30px rgba(0,0,0,0.55),
+    0 0 60px -10px rgba(16,185,129,0.14),
+    inset 0 1px 0 0 rgba(255,255,255,0.05);
+}
+.product-shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+/* Tiny faux window-chrome bar above the screenshot so it feels framed */
+.product-shot.with-chrome::before {
+  content: "";
+  display: block;
+  height: 26px;
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border-subtle);
+  background-image:
+    radial-gradient(circle at 14px 13px, rgba(248,113,113,0.55) 4px, transparent 4.5px),
+    radial-gradient(circle at 32px 13px, rgba(251,191,36,0.55) 4px, transparent 4.5px),
+    radial-gradient(circle at 50px 13px, rgba(52,211,153,0.55) 4px, transparent 4.5px);
+  background-repeat: no-repeat;
+}
+
+/* Slide 4 — image-card variant of .feat */
+.feat.feat-shot {
+  padding: 0;
+  overflow: hidden;
+}
+.feat.feat-shot .feat-shot-img {
+  width: 100%;
+  height: 130px;
+  object-fit: cover;
+  object-position: top left;
+  display: block;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.feat.feat-shot .feat-shot-body {
+  padding: 18px 22px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+.feat.feat-shot .feat-shot-body p { margin-top: auto; }
+
+/* Slide 11 — converts to 2-col when a hero shot is included */
+.s11-wrap.s11-with-shot {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px;
+  align-items: center;
+}
+.s11-wrap.s11-with-shot .s11-meta { margin-top: 48px; }
+.s11-shot { width: 100%; }
+@media (max-width: 900px) {
+  .s11-wrap.s11-with-shot { grid-template-columns: 1fr; gap: 32px; }
+}
+
+[data-reveal] { opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  [data-reveal] { opacity: 1 !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="deck-mark">
+  <div class="mark-logo"></div>
+  <div class="mark-text">Lynx</div>
+</div>
+<div class="deck-counter" id="counter">01 / 11</div>
+
+<div class="progress" id="progress"></div>
+
+<div class="deck" id="deck">
+
+  <!-- ============ SLIDE 1 — TITLE ============ -->
+  <div class="slide s1" data-index="0">
+    <div class="s1-grid">
+      <div class="s1-left">
+        <div class="s1-lockup" data-reveal>
+          <img src="https://i.ibb.co/Hfqj2kbB/logo.png" alt="Lynx" class="s1-mark" />
+          <div class="s1-lockup-text">
+            <span class="s1-wordmark">Lynx</span>
+            <span class="live-pill"><span class="live-dot"></span><span class="live-text">Live</span><span>· MVP shipped</span></span>
+          </div>
+        </div>
+        <h1 class="h1" data-reveal>Run 30 units<br>like 3.</h1>
+        <p class="body" data-reveal style="margin-top: 32px;">The operating system for boutique short-term rental operators. The dashboard is live. Operators are using it today.</p>
+        <div class="s1-actions" data-reveal>
+          <a class="demo-link" href="/demo">
+            <span>Open live demo</span>
+            <span>→</span>
+          </a>
+        </div>
+        <div class="s1-meta" data-reveal>
+          <div class="s1-meta-item">
+            <div class="label">Built for</div>
+            <div class="v">8–40 units</div>
+          </div>
+          <div class="s1-meta-item">
+            <div class="label">Live since</div>
+            <div class="v">Apr 2026</div>
+          </div>
+          <div class="s1-meta-item">
+            <div class="label">Stage</div>
+            <div class="v">Private beta</div>
+          </div>
+        </div>
+      </div>
+      <div class="s1-right" data-reveal>
+        <div class="product-shot with-chrome">
+          <img
+            src="https://i.ibb.co/F2gxK8z/overview.jpg"
+            alt="Lynx manager dashboard — overview, operations queue, portfolio status"
+            loading="eager"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SLIDE 2 — PROBLEM ============ -->
+  <div class="slide" data-index="1">
+    <div class="s2-wrap">
+      <div class="s2-left">
+        <div class="eyebrow" data-reveal>
+          <span class="dot"></span>
+          <span class="label">The problem</span>
+        </div>
+        <h1 class="h1" data-reveal>A spreadsheet<br>and a group chat.</h1>
+        <p class="body" data-reveal>The average operator with 15 units knows their business is profitable. They don't know by how much. They find out a cleaning was missed when the next guest checks in.</p>
+        <ul class="pain-list" data-reveal>
+          <li><span class="pain-num">01</span><span class="pain-text">4 platforms · <span class="em">none of which talk to each other</span></span></li>
+          <li><span class="pain-num">02</span><span class="pain-text">A spreadsheet · <span class="em">one formula error from being wrong</span></span></li>
+          <li><span class="pain-num">03</span><span class="pain-text">5 vendors · <span class="em">communicating by text</span></span></li>
+          <li><span class="pain-num">04</span><span class="pain-text">3 owners · <span class="em">waiting for a monthly summary</span></span></li>
+          <li><span class="pain-num">05</span><span class="pain-text">No real-time view · <span class="em">of what's happening right now</span></span></li>
+        </ul>
+      </div>
+      <div class="s2-right" data-reveal>
+        <div class="spreadsheet">
+          <div class="ss-tabs">
+            <div class="ss-tab">Bookings</div>
+            <div class="ss-tab">Cleaners</div>
+            <div class="ss-tab active">P&L Q2</div>
+            <div class="ss-tab">Vendors</div>
+            <div class="ss-tab error">Pivot</div>
+            <div class="ss-tab">Notes</div>
+          </div>
+          <div class="ss-grid">
+            <div class="ss-cell h"></div>
+            <div class="ss-cell h">Unit</div>
+            <div class="ss-cell h">Revenue</div>
+            <div class="ss-cell h">Cleaning</div>
+            <div class="ss-cell h">Fees</div>
+            <div class="ss-cell h">Net</div>
+
+            <div class="ss-cell row-num">01</div>
+            <div class="ss-cell">Cedar Loft</div>
+            <div class="ss-cell">$5,420.00</div>
+            <div class="ss-cell">$380.00</div>
+            <div class="ss-cell">$752.50</div>
+            <div class="ss-cell">$4,287.50</div>
+
+            <div class="ss-cell row-num">02</div>
+            <div class="ss-cell">Harbor Studio</div>
+            <div class="ss-cell">$4,910.00</div>
+            <div class="ss-cell">$320.00</div>
+            <div class="ss-cell">$675.80</div>
+            <div class="ss-cell">$3,914.20</div>
+
+            <div class="ss-cell row-num">03</div>
+            <div class="ss-cell">North Bluff</div>
+            <div class="ss-cell">$3,200.00</div>
+            <div class="ss-cell">$285.00</div>
+            <div class="ss-cell error"></div>
+            <div class="ss-cell error"></div>
+
+            <div class="ss-cell row-num">04</div>
+            <div class="ss-cell">Pine Cottage</div>
+            <div class="ss-cell">$1,420.00</div>
+            <div class="ss-cell">$140.00</div>
+            <div class="ss-cell">$171.25</div>
+            <div class="ss-cell">$1,108.75</div>
+
+            <div class="ss-cell row-num">05</div>
+            <div class="ss-cell muted">Total</div>
+            <div class="ss-cell">$14,950.00</div>
+            <div class="ss-cell">$1,125.00</div>
+            <div class="ss-cell error"></div>
+            <div class="ss-cell error"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SLIDE 3 — THE SHIFT ============ -->
+  <div class="slide" data-index="2">
+    <div class="s3-wrap">
+      <div class="s3-head">
+        <div class="eyebrow" data-reveal>
+          <span class="dot"></span>
+          <span class="label">The shift</span>
+        </div>
+        <h1 class="h1" data-reveal>Not a spreadsheet<br>with a login.<br><span class="em">A live nerve center.</span></h1>
+        <p class="body" data-reveal>Every unit, every vendor, every status — one view. Net profit per unit, computed in real time. A vendor marks a cleaning complete on their phone. The manager dashboard catches up in seconds.</p>
+      </div>
+      <div class="s3-compare" data-reveal>
+        <div class="s3-col">
+          <span class="label">What they have today</span>
+          <ul class="s3-col-list">
+            <li>15-tab spreadsheet</li>
+            <li>Group chat with vendors</li>
+            <li>No live status</li>
+            <li>Net profit: a guess</li>
+            <li>Owner statements: built by hand</li>
+          </ul>
+        </div>
+        <div class="s3-col">
+          <span class="label label-accent">What Lynx gives them</span>
+          <ul class="s3-col-list">
+            <li>Real-time status board</li>
+            <li>Vendor portal in their pocket</li>
+            <li>Net profit per unit, always current</li>
+            <li>A signed ledger that does the accounting</li>
+            <li>The first call when something changes</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SLIDE 4 — WHAT'S LIVE ============ -->
+  <div class="slide" data-index="3">
+    <div class="s4-wrap">
+      <div class="s4-head">
+        <div>
+          <div class="eyebrow" data-reveal>
+            <span class="dot"></span>
+            <span class="label">Shipped · live today</span>
+          </div>
+          <h1 class="h1" data-reveal>The complete<br>core <span class="em">platform.</span></h1>
+        </div>
+        <div class="s4-head-right" data-reveal>
+          <p class="body">The full operator workflow: manager dashboard, unit ledger, vendor portal, work orders, payouts, reports, help, and a one-click demo. One ledger. One sync.</p>
+        </div>
+      </div>
+
+      <div class="s4-grid">
+        <div class="feat" data-reveal>
+          <div class="feat-head">
+            <span class="feat-num">01</span>
+            <span class="shipped-tag">Shipped</span>
+          </div>
+          <h3>Manager dashboard</h3>
+          <p>Operations queue, latest completed job, owed vendors, occupancy, and unit status in one calm command center.</p>
+        </div>
+        <div class="feat" data-reveal>
+          <div class="feat-head">
+            <span class="feat-num">02</span>
+            <span class="shipped-tag">Shipped</span>
+          </div>
+          <h3>Unit detail · timeline</h3>
+          <p>Unit status, bookings, work orders, and payout history stay attached to the unit where the work happened.</p>
+        </div>
+        <div class="feat" data-reveal>
+          <div class="feat-head">
+            <span class="feat-num">03</span>
+            <span class="shipped-tag">Shipped</span>
+          </div>
+          <h3>Vendor portal</h3>
+          <p>Mobile-first. Built for the cleaner on-site. Pending jobs, mark complete, owed balance. Nothing else.</p>
+        </div>
+        <div class="feat feat-shot" data-reveal>
+          <img
+            src="https://i.ibb.co/r28tKXZk/vendor.jpg"
+            alt="Vendors page — network of cleaners, software, and maintenance vendors"
+            class="feat-shot-img"
+            loading="lazy"
+          />
+          <div class="feat-shot-body">
+            <div class="feat-head">
+              <span class="feat-num">04</span>
+              <span class="shipped-tag">Shipped</span>
+            </div>
+            <h3>Vendors & work orders</h3>
+            <p>Create vendors, assign jobs, attach costs, soft-delete safely, keep vendor history clean over time.</p>
+          </div>
+        </div>
+        <div class="feat" data-reveal>
+          <div class="feat-head">
+            <span class="feat-num">05</span>
+            <span class="shipped-tag">Shipped</span>
+          </div>
+          <h3>Demo mode</h3>
+          <p>Seed the winning scenario in one click: dashboard on the left, vendor portal on the right, live update in seconds.</p>
+        </div>
+        <div class="feat" data-reveal>
+          <div class="feat-head">
+            <span class="feat-num">06</span>
+            <span class="shipped-tag">Shipped</span>
+          </div>
+          <h3>Reports & help</h3>
+          <p>CSV export, live report cards, and operator help are already in the product instead of sitting in the pitch.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SLIDE 5 — WOW MOMENT ============ -->
+  <div class="slide" data-index="4">
+    <div class="s5-wrap">
+      <div class="s5-head">
+        <div class="eyebrow" style="justify-content:center" data-reveal>
+          <span class="dot"></span>
+          <span class="label">The wow moment</span>
+        </div>
+        <h1 class="h1" data-reveal>One tap.<br>The whole portfolio<br><span class="em">just updates.</span></h1>
+        <p class="body" data-reveal>Vendor on-site. Cleaning done. They tap their phone. The work order completes, the unit flips Ready, a pending payout appears, and the manager dashboard updates within 1-3 seconds.</p>
+      </div>
+
+      <div class="s5-split">
+        <div class="s5-side" data-reveal>
+          <div class="phone">
+            <div class="phone-bar">
+              <span>14:32</span>
+              <span>● ● ●</span>
+            </div>
+            <div class="phone-head">
+              <span class="label">Vendor portal</span>
+              <div class="name">M. Reyes</div>
+            </div>
+            <div class="job">
+              <div class="job-row">
+                <span class="job-name">Cedar Loft · clean</span>
+                <span class="job-pay">$95.00</span>
+              </div>
+              <div class="job-meta">UNIT-04 · today · 14:00–15:30</div>
+              <button class="job-cta" id="jobCta">Mark complete</button>
+            </div>
+            <div class="job" style="opacity:0.45">
+              <div class="job-row">
+                <span class="job-name">Harbor Studio · clean</span>
+                <span class="job-pay">$120.00</span>
+              </div>
+              <div class="job-meta">UNIT-07 · tomorrow · 11:00</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="s5-bridge" data-reveal>
+          <span class="label">Live</span>
+          <span class="pulse"></span>
+          <div class="s5-bridge-line"></div>
+          <span class="label">1-3s</span>
+        </div>
+
+        <div class="s5-side" data-reveal>
+          <div class="dashboard">
+            <div class="dash-bar">
+              <span>lynx / portfolio</span>
+              <span id="dashSync">SYNCED · JUST NOW</span>
+            </div>
+            <div class="dash-stats">
+              <div class="dash-stat">
+                <span class="label">Latest complete</span>
+                <div class="v" id="dashNetProfit">North Bluff</div>
+              </div>
+              <div class="dash-stat">
+                <span class="label">Owed vendors</span>
+                <div class="v" id="dashOwed">$1,840</div>
+              </div>
+              <div class="dash-stat">
+                <span class="label">Assigned jobs</span>
+                <div class="v" id="assignedJobs">4</div>
+              </div>
+            </div>
+            <div class="dash-units">
+              <div class="unit-card" data-status="cleaning" id="cedarCard">
+                <div class="uc-row"><span class="uc-name">Cedar Loft</span><span class="uc-id">UNIT-04</span></div>
+                <div class="uc-label">Net profit · MTD</div>
+                <div class="uc-metric" id="cedarMetric">$4,192.50</div>
+                <div class="uc-meta">
+                  <div class="uc-meta-item"><div class="uc-label">Status</div><div class="v s-cleaning" id="cedarStatus">Cleaning</div></div>
+                  <div class="uc-meta-item"><div class="uc-label">Vendor</div><div class="v">M. Reyes</div></div>
+                </div>
+              </div>
+              <div class="unit-card" data-status="occupied">
+                <div class="uc-row"><span class="uc-name">Harbor Studio</span><span class="uc-id">UNIT-07</span></div>
+                <div class="uc-label">Net profit · MTD</div>
+                <div class="uc-metric">$3,914.20</div>
+                <div class="uc-meta">
+                  <div class="uc-meta-item"><div class="uc-label">Status</div><div class="v s-occupied">Occupied</div></div>
+                  <div class="uc-meta-item"><div class="uc-label">Out</div><div class="v">May 03</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sync-proof" data-reveal>
+        <div class="sync-proof-item"><span class="k">01</span><span class="v">Assigned work order disappears</span></div>
+        <div class="sync-proof-item"><span class="k">02</span><span class="v">Latest completed job updates</span></div>
+        <div class="sync-proof-item"><span class="k">03</span><span class="v">Unit status becomes Ready</span></div>
+        <div class="sync-proof-item"><span class="k">04</span><span class="v">Owed to vendors increases</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SLIDE 6 — ROADMAP 01: DASHBOARD ============ -->
+  <div class="slide" data-index="5">
+    <div class="s-rm-wrap">
+      <div class="rm-left">
+        <div class="rm-pillar-nav" data-reveal>
+          <span class="rm-pillar active">01 · Dashboard</span>
+          <span class="rm-pillar">02 · Guest</span>
+          <span class="rm-pillar">03 · Business</span>
+          <span class="rm-pillar">04 · Platform</span>
+        </div>
+        <div data-reveal>
+          <span class="rm-num">01</span>
+          <div class="eyebrow">
+            <span class="dot"></span>
+            <span class="label">Where it goes · the dashboard</span>
+          </div>
+        </div>
+        <h2 class="rm-h" data-reveal>From polling to <span class="em">live.</span> From today to <span class="em">a month at a glance.</span></h2>
+        <p class="rm-body" data-reveal>The dashboard polls every 2.5 seconds today. The next version pushes instantly. Then a 30-day Gantt grid: every booking across every unit, gaps and turnovers visible at a glance.</p>
+        <ul class="rm-list" data-reveal>
+          <li>WebSocket live sync · zero polling</li>
+          <li>30-day Gantt across the full portfolio</li>
+          <li>Paste a booking, Lynx fills the form</li>
+          <li>Cost flags · 3× cleanings get caught</li>
+        </ul>
+      </div>
+      <div class="rm-right" data-reveal>
+        <div class="gantt">
+          <div class="gantt-head">
+            <span>lynx / calendar · 14 days</span>
+            <span>MAY 2026</span>
+          </div>
+          <div class="gantt-cols">
+            <div class="gantt-col-h">UNIT</div>
+            <div class="gantt-col-h">M01</div><div class="gantt-col-h">T02</div><div class="gantt-col-h">W03</div><div class="gantt-col-h">T04</div><div class="gantt-col-h">F05</div><div class="gantt-col-h weekend">S06</div><div class="gantt-col-h weekend">S07</div><div class="gantt-col-h">M08</div><div class="gantt-col-h">T09</div><div class="gantt-col-h">W10</div><div class="gantt-col-h">T11</div><div class="gantt-col-h">F12</div><div class="gantt-col-h weekend">S13</div><div class="gantt-col-h weekend">S14</div>
+          </div>
+          <div class="gantt-row">
+            <div class="gantt-unit">Cedar Loft</div>
+            <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell weekend"></div><div class="gantt-cell weekend"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell weekend"></div><div class="gantt-cell weekend"></div>
+            <div class="gantt-bar bk-blue" style="left: calc(110px + ((100% - 110px) / 14) * 0); width: calc(((100% - 110px) / 14) * 3);">D. Park · 3n</div>
+            <div class="gantt-bar bk-amber" style="left: calc(110px + ((100% - 110px) / 14) * 3); width: calc(((100% - 110px) / 14) * 1);">clean</div>
+            <div class="gantt-bar bk-blue" style="left: calc(110px + ((100% - 110px) / 14) * 4); width: calc(((100% - 110px) / 14) * 5);">L. Ahmed · 5n</div>
+            <div class="gantt-bar bk-amber" style="left: calc(110px + ((100% - 110px) / 14) * 9); width: calc(((100% - 110px) / 14) * 1);">clean</div>
+            <div class="gantt-bar bk-blue" style="left: calc(110px + ((100% - 110px) / 14) * 10); width: calc(((100% - 110px) / 14) * 4);">M. Cole · 4n</div>
+          </div>
+          <div class="gantt-row">
+            <div class="gantt-unit">Harbor Studio</div>
+            <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell weekend"></div><div class="gantt-cell weekend"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell weekend"></div><div class="gantt-cell weekend"></div>
+            <div class="gantt-bar bk-blue" style="left: calc(110px + ((100% - 110px) / 14) * 0); width: calc(((100% - 110px) / 14) * 2);">J. Patel</div>
+            <div class="gantt-bar bk-amber" style="left: calc(110px + ((100% - 110px) / 14) * 2); width: calc(((100% - 110px) / 14) * 1);">clean</div>
+            <div class="gantt-bar bk-blue" style="left: calc(110px + ((100% - 110px) / 14) * 5); width: calc(((100% - 110px) / 14) * 4);">R. Lee · 4n</div>
+            <div class="gantt-bar bk-amber" style="left: calc(110px + ((100% - 110px) / 14) * 9); width: calc(((100% - 110px) / 14) * 1);">clean</div>
+            <div class="gantt-bar bk-violet" style="left: calc(110px + ((100% - 110px) / 14) * 11); width: calc(((100% - 110px) / 14) * 3);">S. Wong</div>
+          </div>
+          <div class="gantt-row">
+            <div class="gantt-unit">North Bluff</div>
+            <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell weekend"></div><div class="gantt-cell weekend"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell weekend"></div><div class="gantt-cell weekend"></div>
+            <div class="gantt-bar bk-amber" style="left: calc(110px + ((100% - 110px) / 14) * 0); width: calc(((100% - 110px) / 14) * 1);">clean</div>
+            <div class="gantt-bar bk-blue" style="left: calc(110px + ((100% - 110px) / 14) * 1); width: calc(((100% - 110px) / 14) * 6);">A. Müller · 6n</div>
+            <div class="gantt-bar bk-amber" style="left: calc(110px + ((100% - 110px) / 14) * 7); width: calc(((100% - 110px) / 14) * 1);">clean</div>
+            <div class="gantt-bar bk-blue" style="left: calc(110px + ((100% - 110px) / 14) * 8); width: calc(((100% - 110px) / 14) * 6);">T. Brooks · 6n</div>
+          </div>
+          <div class="gantt-row">
+            <div class="gantt-unit">Pine Cottage</div>
+            <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell weekend"></div><div class="gantt-cell weekend"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell weekend"></div><div class="gantt-cell weekend"></div>
+            <div class="gantt-bar bk-red" style="left: calc(110px + ((100% - 110px) / 14) * 0); width: calc(((100% - 110px) / 14) * 4);">HVAC · maint</div>
+            <div class="gantt-bar bk-amber" style="left: calc(110px + ((100% - 110px) / 14) * 4); width: calc(((100% - 110px) / 14) * 1);">clean</div>
+            <div class="gantt-bar bk-blue" style="left: calc(110px + ((100% - 110px) / 14) * 5); width: calc(((100% - 110px) / 14) * 9);">G. Tanaka · 9n</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SLIDE 7 — ROADMAP 02: GUEST ============ -->
+  <div class="slide" data-index="6">
+    <div class="s-rm-wrap">
+      <div class="rm-left">
+        <div class="rm-pillar-nav" data-reveal>
+          <span class="rm-pillar">01 · Dashboard</span>
+          <span class="rm-pillar active">02 · Guest</span>
+          <span class="rm-pillar">03 · Business</span>
+          <span class="rm-pillar">04 · Platform</span>
+        </div>
+        <div data-reveal>
+          <span class="rm-num">02</span>
+          <div class="eyebrow">
+            <span class="dot"></span>
+            <span class="label">Where it goes · guest experience</span>
+          </div>
+        </div>
+        <h2 class="rm-h" data-reveal>From ops tool to <span class="em">system of record</span> for the guest.</h2>
+        <p class="rm-body" data-reveal>Bookings live in Lynx. Guest names, addresses, check-in dates — all there. Operators are still copying check-in instructions from a Google Doc. We close the loop with templates, merge fields, and automation.</p>
+        <ul class="rm-list" data-reveal>
+          <li>Pre-arrival, door codes, checkout, thank-you</li>
+          <li>Merge fields pull live booking data</li>
+          <li>Schedule by event · check-in − 24h</li>
+          <li>The whole communication arc runs itself</li>
+        </ul>
+      </div>
+      <div class="rm-right" data-reveal>
+        <div class="msg-preview">
+          <div class="msg-tabs">
+            <div class="msg-tab">Pre-arrival</div>
+            <div class="msg-tab active">Check-in</div>
+            <div class="msg-tab">Checkout</div>
+            <div class="msg-tab">Thank you</div>
+          </div>
+          <div class="msg-body">
+            Hi <span class="merge">{{guest_first}}</span> — welcome to <span class="merge">{{unit_name}}</span>.<br><br>
+            Your check-in is at <span class="merge">{{check_in_time}}</span> on <span class="merge">{{check_in_date}}</span>. The door code is <span class="merge">{{door_code}}</span>.<br><br>
+            The unit is at <span class="merge">{{address}}</span>. Parking is in the back. Wifi password is in the welcome book by the door.<br><br>
+            Anything you need — text this number.
+          </div>
+          <div class="msg-foot">
+            <span>5 merge fields · 142 chars</span>
+            <span class="auto">Auto · check-in − 24h</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SLIDE 8 — ROADMAP 03: BUSINESS ============ -->
+  <div class="slide" data-index="7">
+    <div class="s-rm-wrap">
+      <div class="rm-left">
+        <div class="rm-pillar-nav" data-reveal>
+          <span class="rm-pillar">01 · Dashboard</span>
+          <span class="rm-pillar">02 · Guest</span>
+          <span class="rm-pillar active">03 · Business</span>
+          <span class="rm-pillar">04 · Platform</span>
+        </div>
+        <div data-reveal>
+          <span class="rm-num">03</span>
+          <div class="eyebrow">
+            <span class="dot"></span>
+            <span class="label">Where it goes · the business layer</span>
+          </div>
+        </div>
+        <h2 class="rm-h" data-reveal>The owner statement<br>writes itself. <span class="em">Ask the data anything.</span></h2>
+        <p class="rm-body" data-reveal>Two things every property manager sends their owner monthly: nothing, or a spreadsheet that took three hours. Lynx already exports CSV. Next, it generates the branded PDF on the first of the month and adds conversational AI over every number in the portfolio.</p>
+        <ul class="rm-list" data-reveal>
+          <li>CSV exports live today</li>
+          <li>Auto owner statements · branded PDF</li>
+          <li>P&L by unit · vendor 1099s · PDF exports</li>
+          <li>Conversational AI over the full ledger</li>
+        </ul>
+      </div>
+      <div class="rm-right" data-reveal>
+        <div class="product-shot with-chrome">
+          <img
+            src="https://i.ibb.co/x8c0pkvJ/report.jpg"
+            alt="Lynx Reports — live snapshot of revenue, occupancy, anomalies, and CSV export"
+            loading="lazy"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SLIDE 9 — ROADMAP 04: PLATFORM ============ -->
+  <div class="slide" data-index="8">
+    <div class="s-rm-wrap">
+      <div class="rm-left">
+        <div class="rm-pillar-nav" data-reveal>
+          <span class="rm-pillar">01 · Dashboard</span>
+          <span class="rm-pillar">02 · Guest</span>
+          <span class="rm-pillar">03 · Business</span>
+          <span class="rm-pillar active">04 · Platform</span>
+        </div>
+        <div data-reveal>
+          <span class="rm-num">04</span>
+          <div class="eyebrow">
+            <span class="dot"></span>
+            <span class="label">Where it goes · platform</span>
+          </div>
+        </div>
+        <h2 class="rm-h" data-reveal>From single operator<br>to <span class="em">multi-role network.</span></h2>
+        <p class="rm-body" data-reveal>Co-managers, accountants, owners — each with their own login, their own scope. The accountant sees the ledger. The property manager sees their units. The owner sees their statement. The growth loop is already running.</p>
+        <ul class="rm-list" data-reveal>
+          <li>Role-based access · scope per user</li>
+          <li>Public launch page · live proof numbers</li>
+          <li>Operator → operator referrals</li>
+          <li>Waitlist that builds the network</li>
+        </ul>
+      </div>
+      <div class="rm-right" data-reveal>
+        <div class="team-vis">
+          <div class="team-row">
+            <div class="team-av a1">JM</div>
+            <div class="team-info">
+              <div class="team-name">Jordan Marsh</div>
+              <div class="team-role">Operator · owner</div>
+            </div>
+            <div class="team-scope">Full portfolio</div>
+          </div>
+          <div class="team-row">
+            <div class="team-av a2">SL</div>
+            <div class="team-info">
+              <div class="team-name">Sara Lin</div>
+              <div class="team-role">Co-manager</div>
+            </div>
+            <div class="team-scope">Cedar · Harbor · Pine</div>
+          </div>
+          <div class="team-row">
+            <div class="team-av a3">DK</div>
+            <div class="team-info">
+              <div class="team-name">Derek Kim</div>
+              <div class="team-role">Accountant</div>
+            </div>
+            <div class="team-scope">Ledger · exports</div>
+          </div>
+          <div class="team-row">
+            <div class="team-av a4">RC</div>
+            <div class="team-info">
+              <div class="team-name">Rosa Carey</div>
+              <div class="team-role">Owner</div>
+            </div>
+            <div class="team-scope">North Bluff only</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SLIDE 10 — OPPORTUNITY ============ -->
+  <div class="slide" data-index="9">
+    <div class="s10-wrap">
+      <div class="s10-head">
+        <div class="eyebrow" data-reveal>
+          <span class="dot"></span>
+          <span class="label">The opportunity</span>
+        </div>
+        <h1 class="h1" data-reveal>An industry built<br>on software made<br>for <span class="em">hotels.</span></h1>
+        <p class="body" data-reveal style="margin-top: 24px;">Existing tools are overbuilt enterprise platforms or underbuilt consumer apps. The boutique operator — 8 to 80 units, multiple properties, real vendor relationships — has been underserved since the beginning.</p>
+      </div>
+      <div class="s10-stats">
+        <div class="s10-stat accent" data-reveal>
+          <span class="label">Market size · US STR</span>
+          <div class="v"><span id="opp1">$15</span><span class="unit">B</span></div>
+          <div class="desc">The total US short-term rental management market — built on hotel software.</div>
+        </div>
+        <div class="s10-stat" data-reveal>
+          <span class="label">Boutique operators · US</span>
+          <div class="v"><span id="opp2">500</span><span class="unit">K+</span></div>
+          <div class="desc">Operators running 8 to 80 units. Underserved by the tools that exist today.</div>
+        </div>
+        <div class="s10-stat" data-reveal>
+          <span class="label">Conversion at demo</span>
+          <div class="v"><span id="opp3">48</span><span class="unit">hr</span></div>
+          <div class="desc">Operators who see the wow moment demo it to a peer within 48 hours.</div>
+        </div>
+      </div>
+      <p class="s10-quote" data-reveal>The MVP is live. The demo moment converts.<br><em>Lynx is the operating system this industry has been waiting for.</em></p>
+    </div>
+  </div>
+
+  <!-- ============ SLIDE 11 — CTA ============ -->
+  <div class="slide" data-index="10">
+    <div class="s11-wrap s11-with-shot">
+      <div class="s11-left">
+        <div class="eyebrow" data-reveal>
+          <span class="live-pill"><span class="live-dot"></span><span class="live-text">Live</span><span>· Invite-only</span></span>
+        </div>
+        <h1 class="h1" data-reveal>Run 30 units<br>like 3.<br><span class="em">It's running now.</span></h1>
+        <p class="body" data-reveal>The dashboard is live. The wow moment is real. The roadmap is the story of Lynx becoming indispensable: for the operator, their vendors, their owners, and their guests.</p>
+        <a class="s11-cta" href="/demo" data-reveal>
+          <span>Launch the live demo</span>
+          <span class="arrow">→</span>
+        </a>
+        <div class="s11-meta" data-reveal>
+          <div class="s11-meta-item">
+            <span class="label">Proof</span>
+            <span class="v">Vendor tap sync</span>
+          </div>
+          <div class="s11-meta-item">
+            <span class="label">Built for</span>
+            <span class="v">8–40 units</span>
+          </div>
+          <div class="s11-meta-item">
+            <span class="label">Stage</span>
+            <span class="v">Private beta</span>
+          </div>
+        </div>
+      </div>
+      <div class="s11-shot" data-reveal>
+        <div class="product-shot with-chrome">
+          <img
+            src="https://i.ibb.co/ksJf2dBN/hero.jpg"
+            alt="Lynx public landing page — Run every unit like it's your only one"
+            loading="lazy"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="tap-zones">
+  <div class="tap-zone tap-prev" id="tapPrev"></div>
+  <div class="tap-zone tap-next" id="tapNext"></div>
+</div>
+
+<div class="chevron chevron-prev hidden" id="chevronPrev">
+  <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+</div>
+<div class="chevron chevron-next" id="chevronNext">
+  <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg>
+</div>
+
+<script>
+(function() {
+  const deck = document.getElementById('deck');
+  const slides = document.querySelectorAll('.slide');
+  const totalSlides = slides.length;
+  let current = 0;
+  let isAnimating = false;
+
+  const tapPrev = document.getElementById('tapPrev');
+  const tapNext = document.getElementById('tapNext');
+  const progress = document.getElementById('progress');
+  const chevronPrev = document.getElementById('chevronPrev');
+  const chevronNext = document.getElementById('chevronNext');
+  const counter = document.getElementById('counter');
+
+  for (let i = 0; i < totalSlides; i++) {
+    const seg = document.createElement('div');
+    seg.className = 'progress-seg' + (i === 0 ? ' active' : '');
+    seg.innerHTML = '<div class="fill"></div>';
+    seg.addEventListener('click', () => goTo(i));
+    progress.appendChild(seg);
+  }
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function updateNav() {
+    const segs = progress.querySelectorAll('.progress-seg');
+    segs.forEach((s, i) => {
+      s.classList.toggle('done', i < current);
+      s.classList.toggle('active', i === current);
+    });
+    chevronPrev.classList.toggle('hidden', current === 0);
+    chevronNext.classList.toggle('hidden', current === totalSlides - 1);
+    counter.textContent = pad(current + 1) + ' / ' + pad(totalSlides);
+  }
+
+  const revealed = new Set();
+  function revealSlide(index) {
+    if (revealed.has(index)) return;
+    revealed.add(index);
+    const els = slides[index].querySelectorAll('[data-reveal]');
+    els.forEach((el, i) => {
+      const delay = i * 0.06;
+      gsap.fromTo(el,
+        { opacity: 0, y: 14 },
+        { opacity: 1, y: 0, duration: 0.5, delay, ease: 'power2.out' }
+      );
+    });
+
+    if (index === 4) runWowMoment();
+    if (index === 9) runOpportunity();
+  }
+
+  function runWowMoment() {
+    const cedarCard = document.getElementById('cedarCard');
+    const cedarStatus = document.getElementById('cedarStatus');
+    const cedarMetric = document.getElementById('cedarMetric');
+    const dashOwed = document.getElementById('dashOwed');
+    const dashNetProfit = document.getElementById('dashNetProfit');
+    const dashSync = document.getElementById('dashSync');
+    const assignedJobs = document.getElementById('assignedJobs');
+    const jobCta = document.getElementById('jobCta');
+    if (!cedarCard) return;
+
+    gsap.delayedCall(1.4, () => {
+      // Tap simulation
+      jobCta.classList.add('tapped');
+    });
+    gsap.delayedCall(1.55, () => {
+      jobCta.classList.remove('tapped');
+      jobCta.textContent = 'Submitting…';
+      if (dashSync) dashSync.textContent = 'SYNCING…';
+    });
+    gsap.delayedCall(2.0, () => {
+      jobCta.classList.add('complete');
+      jobCta.textContent = '✓ Complete';
+
+      // Status flips
+      cedarCard.setAttribute('data-status', 'ready');
+      cedarStatus.classList.remove('s-cleaning');
+      cedarStatus.classList.add('s-ready');
+      cedarStatus.textContent = 'Ready';
+
+      // Flash hero metrics
+      dashOwed.classList.add('flashing');
+      dashNetProfit.classList.add('flashing');
+      assignedJobs.classList.add('flashing');
+
+      dashNetProfit.textContent = 'Cedar Loft';
+      tweenNumber(dashOwed, 1840, 1935, 700, '$', 0);
+      tweenNumber(cedarMetric, 4192.50, 4097.50, 700, '$', 2);
+      tweenNumber(assignedJobs, 4, 3, 700, '', 0);
+
+      gsap.delayedCall(0.9, () => {
+        dashOwed.classList.remove('flashing');
+        dashNetProfit.classList.remove('flashing');
+        assignedJobs.classList.remove('flashing');
+        if (dashSync) dashSync.textContent = 'SYNCED · JUST NOW';
+      });
+    });
+  }
+
+  function runOpportunity() {
+    const o1 = document.getElementById('opp1');
+    const o2 = document.getElementById('opp2');
+    const o3 = document.getElementById('opp3');
+    if (!o1) return;
+
+    gsap.delayedCall(0.5, () => {
+      tweenNumber(o1, 0, 15, 1100, '$', 0);
+      tweenNumber(o2, 0, 500, 1100, '', 0);
+      tweenNumber(o3, 0, 48, 1100, '', 0);
+    });
+  }
+
+  function fmt(n, prefix, decimals) {
+    const fixed = n.toFixed(decimals);
+    const parts = fixed.split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return prefix + parts.join('.');
+  }
+
+  function tweenNumber(el, from, to, duration, prefix, decimals) {
+    const obj = { v: from };
+    gsap.to(obj, {
+      v: to,
+      duration: duration / 1000,
+      ease: 'power2.out',
+      onUpdate: () => { el.textContent = fmt(obj.v, prefix, decimals); }
+    });
+  }
+
+  function goTo(index) {
+    if (index === current || isAnimating || index < 0) return;
+    if (index >= totalSlides) {
+      window.parent.postMessage({ type: 'pitch-deck-complete' }, '*');
+      return;
+    }
+    isAnimating = true;
+    current = index;
+    updateNav();
+
+    gsap.to(deck, {
+      x: -current * window.innerWidth,
+      duration: 0.45,
+      ease: 'power2.inOut',
+      onComplete: () => {
+        revealSlide(current);
+        isAnimating = false;
+      }
+    });
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); goTo(current + 1); }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); goTo(current - 1); }
+  });
+
+  tapPrev.addEventListener('click', () => goTo(current - 1));
+  tapNext.addEventListener('click', () => goTo(current + 1));
+  chevronPrev.addEventListener('click', (e) => { e.stopPropagation(); goTo(current - 1); });
+  chevronNext.addEventListener('click', (e) => { e.stopPropagation(); goTo(current + 1); });
+
+  let touchStartX = 0;
+  let touchStartY = 0;
+  document.addEventListener('touchstart', (e) => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+
+  document.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return;
+    if (dx < 0) goTo(current + 1);
+    else goTo(current - 1);
+  }, { passive: true });
+
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => gsap.set(deck, { x: -current * window.innerWidth }), 100);
+  });
+
+  gsap.set(deck, { x: 0 });
+  updateNav();
+  revealed.add(0);
+  slides[0].querySelectorAll('[data-reveal]').forEach(el => { el.style.opacity = 1; });
+
+  // Stamp every slide with a small Lynx brand mark in the bottom-right.
+  const LYNX_LOGO = "https://i.ibb.co/Hfqj2kbB/logo.png";
+  slides.forEach((slide) => {
+    if (slide.querySelector(".brand-mark")) return;
+    const mark = document.createElement("div");
+    mark.className = "brand-mark";
+    mark.innerHTML =
+      '<img src="' + LYNX_LOGO + '" alt="" loading="lazy" />' +
+      "<span>Lynx</span>";
+    slide.appendChild(mark);
+  });
+})();
+</script>
+
+</body>
+</html>
