@@ -1,0 +1,5 @@
+{"step":1,"status":"passed","remark":"Opened /demo and clicked Reset & launch demo"}
+not json at all — kane sometimes prints a warning line
+{"step":2,"status":"passed","remark":"Created booking and checked out"}
+{"step":3,"status":"failed","remark":"Asserted Net equals $780.00 — found $680.00"}
+{"type":"run_end","status":"failed","summary":"Net showed $680.00","one_liner":"Profit assertion failed","reason":"Net showed $680.00, expected $780.00","duration":63.9,"credits":14,"final_state":{"revenue":"$1,000.00","costs":"$320.00","net":"$680.00"},"session_dir":"~/.testmuai/kaneai/sessions/def","run_dir":"~/.testmuai/kaneai/sessions/def/runs/0","test_url":"https://test-manager.lambdatest.com/projects/1/test-cases/3"}

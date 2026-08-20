@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node --no-warnings \"$CLAUDE_PROJECT_DIR/proofloop/src/cli.ts\" hook",
+            "timeout": 1500
+          }
+        ]
+      }
+    ]
+  }
+}

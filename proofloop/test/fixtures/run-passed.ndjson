@@ -1,0 +1,5 @@
+{"type":"bifurcation","flows":["reset","book"],"count":2}
+{"step":1,"status":"passed","remark":"Opened /demo and clicked Reset & launch demo"}
+{"step":2,"status":"passed","remark":"Created booking for Sarah Johnson"}
+{"step":3,"status":"passed","remark":"Asserted Revenue equals $1,000.00"}
+{"type":"run_end","status":"passed","summary":"Booking created; revenue $1,000.00","one_liner":"Booking flow passed","reason":"Objective completed","duration":41.2,"credits":0,"final_state":{"revenue":"$1,000.00"},"context":{"memory":{},"variables":{},"pointer":"(passed)"},"session_dir":"~/.testmuai/kaneai/sessions/abc","run_dir":"~/.testmuai/kaneai/sessions/abc/runs/0","test_url":"https://test-manager.lambdatest.com/projects/1/test-cases/2"}

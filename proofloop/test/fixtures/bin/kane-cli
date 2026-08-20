@@ -1,0 +1,7 @@
+#!/bin/sh
+# Test stub for kane-cli. Prints the NDJSON fixture named by $KANE_STUB_FIXTURE to
+# stdout (like `--agent` mode), a progress line to stderr, and exits $KANE_STUB_EXIT.
+if [ "$1" = "--version" ]; then echo "kane-cli-stub 0.0.0"; exit 0; fi
+echo "stub: $*" >&2
+if [ -n "$KANE_STUB_FIXTURE" ]; then cat "$KANE_STUB_FIXTURE"; fi
+exit "${KANE_STUB_EXIT:-0}"
