@@ -116,23 +116,37 @@ export async function runVerify(opts: VerifyOptions, overrides: Partial<VerifyDe
       if (seenTests.has(test)) continue;
       seenTests.add(test);
       deps.log(`▶ ${flow} — ${test}`);
+      const stderrTail: string[] = [];
       const run = await deps.runTest({
         testPath: test,
         cwd: opts.root,
         variablesFile: VARIABLES_FILE,
         timeoutS: opts.timeoutS ?? 420,
         onStep: (s) => deps.log(`  [${flow}] step ${s.step} ${s.status === "passed" ? "✓" : "✗"} ${s.remark}`),
+        onStderr: (chunk) => {
+          for (const l of chunk.split("\n")) {
+            if (l.trim()) {
+              stderrTail.push(l.trimEnd());
+              if (stderrTail.length > 20) stderrTail.shift();
+            }
+          }
+        },
       });
       const status = deriveOutcome(run.parsed, run.exitCode);
       const end = run.parsed.runEnd;
       const credits = typeof end?.credits === "number" ? end.credits : 0;
+      const errorReason =
+        status === "error"
+          ? `kane-cli exited ${run.exitCode} without a run_end event` +
+            (stderrTail.length ? ` — stderr: ${stderrTail.slice(-5).join(" | ")}` : "")
+          : "";
       const result: FlowResult = {
         flow,
         title: def.title ?? flow,
         test,
         status,
         exitCode: run.exitCode,
-        reason: end?.reason ?? (status === "error" ? `kane-cli exited ${run.exitCode} without a run_end event` : ""),
+        reason: end?.reason ?? errorReason,
         summary: end?.summary ?? "",
         oneLiner: end?.one_liner ?? "",
         finalState: (end?.final_state as Record<string, unknown> | undefined) ?? {},

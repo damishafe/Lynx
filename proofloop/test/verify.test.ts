@@ -97,6 +97,23 @@ test("missing run_end or exit 2 is an error, not a failure", async () => {
   assert.equal(r.results[0].status, "error");
 });
 
+test("captures Kane's stderr tail into the reason when a run errors out", async () => {
+  const root = makeRoot();
+  const r = await runVerify(
+    { root, mode: "all", trigger: "cli", attempt: 1 },
+    {
+      ...okDeps,
+      getChangedFiles: () => [],
+      runTest: async (o) => {
+        o.onStderr?.("stub: boom\n");
+        return fakeRun("run-no-end.ndjson", 2);
+      },
+    },
+  );
+  assert.equal(r.verdict, "error");
+  assert.match(r.results[0].reason, /stderr: stub: boom/);
+});
+
 test("preflight failure short-circuits with an error verdict", async () => {
   const root = makeRoot();
   const r = await runVerify(
@@ -105,6 +122,10 @@ test("preflight failure short-circuits with an error verdict", async () => {
   );
   assert.equal(r.verdict, "error");
   assert.match(r.preflight?.message ?? "", /http:\/\/localhost:3000/);
+  const persisted = readLatest(root);
+  assert.equal(persisted?.verdict, "error");
+  assert.match(persisted?.preflight?.message ?? "", /not reachable/);
+  assert.ok(existsSync(join(root, ".proofloop", "history.jsonl")));
 });
 
 test("unmapped files are reported and trigger the fallback flow", async () => {
