@@ -38,6 +38,8 @@ export type VerifyReport = {
   results: FlowResult[];
   verdict: Verdict;
   preflight?: { ok: boolean; message: string };
+  /** Path prefixes considered eligible (from the flow map's `roots`, default ["frontend/"]). Optional: absent on reports persisted before this field existed. */
+  roots?: string[];
 };
 
 /** `.proofloop/` lives at the repo root, one level above `frontend/` (override with PROOFLOOP_DIR). */

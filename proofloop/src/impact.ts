@@ -7,7 +7,11 @@ export type FlowMap = {
   shared?: string[];
   fallback?: string[];
   ignore?: string[];
+  /** Path prefixes ProofLoop considers at all; a changed file outside every root is ignored. Default: ["frontend/"]. */
+  roots?: string[];
 };
+
+const DEFAULT_ROOTS = ["frontend/"];
 
 export type Impact = {
   /** Flows to run, in map order. */
@@ -67,11 +71,12 @@ export function matchesAny(path: string, globs: string[]): boolean {
 }
 
 export function computeImpact(changed: string[], map: FlowMap): Impact {
+  const roots = map.roots ?? DEFAULT_ROOTS;
   const ignoreGlobs = [...ALWAYS_IGNORE, ...(map.ignore ?? [])];
   const considered: string[] = [];
   const ignored: string[] = [];
   for (const file of changed) {
-    if (!file.startsWith("frontend/") || matchesAny(file, ignoreGlobs)) ignored.push(file);
+    if (!roots.some((r) => file.startsWith(r)) || matchesAny(file, ignoreGlobs)) ignored.push(file);
     else considered.push(file);
   }
 

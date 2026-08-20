@@ -58,3 +58,16 @@ test("non-frontend, docs, tests, env and ignored paths are skipped entirely", ()
 test("no changes → no flows", () => {
   assert.deepEqual(computeImpact([], map).flows, []);
 });
+
+test("roots: a map with roots considers files under any listed root and ignores the rest", () => {
+  const rootedMap: FlowMap = { ...map, roots: ["src/"] };
+  const i = computeImpact(["src/a.ts", "frontend/x.ts"], rootedMap);
+  assert.deepEqual(i.considered, ["src/a.ts"]);
+  assert.deepEqual(i.ignored, ["frontend/x.ts"]);
+});
+
+test("roots: a map without roots defaults to frontend/ only (unchanged behaviour)", () => {
+  const i = computeImpact(["frontend/lib/bookings.ts", "src/a.ts"], map);
+  assert.deepEqual(i.considered, ["frontend/lib/bookings.ts"]);
+  assert.deepEqual(i.ignored, ["src/a.ts"]);
+});

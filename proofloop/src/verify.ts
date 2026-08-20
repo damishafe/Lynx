@@ -86,6 +86,7 @@ export async function runVerify(opts: VerifyOptions, overrides: Partial<VerifyDe
     flows,
     results: [],
     verdict: "nothing-to-verify",
+    roots: map.roots ?? ["frontend/"],
   };
 
   if (flows.length === 0) {

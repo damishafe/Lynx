@@ -41,6 +41,8 @@ export type VerifyReport = {
   results: FlowResult[];
   verdict: Verdict;
   preflight?: { ok: boolean; message: string };
+  /** Path prefixes considered eligible (from the flow map's `roots`, default ["frontend/"]). Optional: absent on reports persisted before this field existed. */
+  roots?: string[];
 };
 
 export function proofloopDir(root: string): string {
@@ -135,10 +137,15 @@ function fmtState(state: Record<string, unknown>): string {
   return entries.map(([k, v]) => `${k}=${String(v)}`).join(" ");
 }
 
+function inRoots(file: string, roots: string[]): boolean {
+  return roots.some((r) => file.startsWith(r));
+}
+
 export function formatConsole(report: VerifyReport): string {
+  const roots = report.roots ?? ["frontend/"];
   const lines: string[] = [];
   lines.push(`ProofLoop ${report.id} · trigger=${report.trigger} · attempt=${report.attempt}`);
-  const shown = report.changedFiles.filter((f) => f.startsWith("frontend/") && !report.ignored.includes(f));
+  const shown = report.changedFiles.filter((f) => inRoots(f, roots) && !report.ignored.includes(f));
   lines.push(`Changed: ${shown.length ? shown.join(", ") : "(none)"}`);
   if (report.unmapped.length) lines.push(`Unmapped (ran fallback): ${report.unmapped.join(", ")}`);
   if (report.preflight && !report.preflight.ok) lines.push(`Preflight: ${report.preflight.message}`);
@@ -167,6 +174,7 @@ export function formatConsole(report: VerifyReport): string {
 
 /** Plain text an agent can act on. Fed to Claude as the Stop-hook block reason. */
 export function buildBlockReason(report: VerifyReport, attempt: number, maxAttempts: number): string {
+  const roots = report.roots ?? ["frontend/"];
   const failed = report.results.filter((r) => r.status !== "passed");
   const lines: string[] = [];
   lines.push(
@@ -190,7 +198,7 @@ export function buildBlockReason(report: VerifyReport, attempt: number, maxAttem
     if (r.testUrl) lines.push(`  Kane run: ${r.testUrl}`);
     lines.push("");
   }
-  const appFiles = report.changedFiles.filter((f) => f.startsWith("frontend/") && !report.ignored.includes(f));
+  const appFiles = report.changedFiles.filter((f) => inRoots(f, roots) && !report.ignored.includes(f));
   lines.push(`Changed files: ${appFiles.join(", ") || "(none)"}`);
   lines.push(
     "Fix the application code so the flow passes. Do not edit kane/*_test.md to make it pass unless the requirement itself changed.",
