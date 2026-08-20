@@ -1,5 +1,6 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { existsSync, mkdirSync, readdirSync, readFileSync, realpathSync, statSync, writeFileSync, copyFileSync } from "node:fs";
+import { dirname, join, relative, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { gitRoot } from "./diff.ts";
 
@@ -138,6 +139,69 @@ function starterSmokeTest(): string {
   ].join("\n");
 }
 
+function listFilesRecursive(dir: string): string[] {
+  const out: string[] = [];
+  for (const entry of readdirSync(dir)) {
+    const full = join(dir, entry);
+    const st = statSync(full);
+    if (st.isDirectory()) out.push(...listFilesRecursive(full));
+    else out.push(full);
+  }
+  return out;
+}
+
+function realOrResolved(p: string): string {
+  try {
+    return realpathSync(p);
+  } catch {
+    return resolve(p);
+  }
+}
+
+/**
+ * Copy the zero-dependency CLI (package.json, tsconfig.json, every file under src/) into
+ * <root>/proofloop/ so the Stop hook has something to run. Deliberately never touches test/,
+ * node_modules, or proofloop.map.json (the map is the starter one ensureMap writes). Skipped
+ * entirely when the target IS the source checkout (running init inside this very repo).
+ */
+function ensureCliInstalled(root: string, force: boolean, lines: string[]): void {
+  const sourceRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+  const targetRoot = join(root, "proofloop");
+
+  if (realOrResolved(sourceRoot) === realOrResolved(targetRoot)) {
+    lines.push("skipped    proofloop/ (already the source checkout)");
+    return;
+  }
+
+  const sourceSrc = join(sourceRoot, "src");
+  const files: { from: string; to: string }[] = [
+    { from: join(sourceRoot, "package.json"), to: join(targetRoot, "package.json") },
+    { from: join(sourceRoot, "tsconfig.json"), to: join(targetRoot, "tsconfig.json") },
+    ...listFilesRecursive(sourceSrc).map((from) => ({ from, to: join(targetRoot, "src", relative(sourceSrc, from)) })),
+  ].filter((f) => existsSync(f.from));
+
+  let installed = 0;
+  let skipped = 0;
+  for (const { from, to } of files) {
+    const existed = existsSync(to);
+    if (existed && !force) {
+      skipped += 1;
+      continue;
+    }
+    mkdirSync(dirname(to), { recursive: true });
+    copyFileSync(from, to);
+    installed += 1;
+  }
+
+  if (installed === 0 && skipped > 0) {
+    lines.push(`skipped    proofloop/ (${skipped} file${skipped === 1 ? "" : "s"} already exist — pass --force to overwrite)`);
+  } else if (skipped > 0) {
+    lines.push(`installed  proofloop/ (${installed} file${installed === 1 ? "" : "s"}, ${skipped} already existed — pass --force to overwrite)`);
+  } else {
+    lines.push(`installed  proofloop/ (${installed} file${installed === 1 ? "" : "s"})`);
+  }
+}
+
 export function runInit(opts: InitOptions): InitResult {
   let root: string;
   try {
@@ -153,6 +217,7 @@ export function runInit(opts: InitOptions): InitResult {
   const appUrl = opts.appUrl ?? "http://localhost:3000";
   const lines: string[] = [];
 
+  ensureCliInstalled(root, force, lines);
   ensureSettings(root, lines);
   writeArtifact(join(root, "proofloop", "proofloop.map.json"), starterMap(), "proofloop/proofloop.map.json", force, lines);
   writeArtifact(join(root, ".testmuai", "variables", "local.json"), starterVariables(appUrl), ".testmuai/variables/local.json", force, lines);

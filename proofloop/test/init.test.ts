@@ -1,9 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { runInit } from "../src/init.ts";
 
@@ -146,4 +147,47 @@ test("--force overwrites a previously-created starter map", () => {
   assert.equal(r.code, 0);
   const map = JSON.parse(readFileSync(mapPath, "utf8"));
   assert.ok(map.flows.smoke, "force should rewrite the starter map");
+});
+
+test("fresh foreign repo: copies the zero-dependency CLI into proofloop/ and it runs", () => {
+  const root = mkGitRoot();
+  const r = runInit({ cwd: root });
+  assert.equal(r.code, 0);
+  assert.ok(existsSync(join(root, "proofloop", "src", "cli.ts")));
+  assert.ok(existsSync(join(root, "proofloop", "src", "hook.ts")));
+  assert.ok(existsSync(join(root, "proofloop", "package.json")));
+  assert.ok(!existsSync(join(root, "proofloop", "test")), "test/ must never be copied");
+  assert.ok(!existsSync(join(root, "proofloop", "node_modules")), "node_modules must never be copied");
+
+  const out = execFileSync(process.execPath, [join(root, "proofloop", "src", "cli.ts"), "help"], { cwd: root, encoding: "utf8" });
+  assert.match(out, /ProofLoop/);
+});
+
+test("second run does not overwrite a sentinel edit to the copied cli.ts without --force", () => {
+  const root = mkGitRoot();
+  runInit({ cwd: root });
+  const cliPath = join(root, "proofloop", "src", "cli.ts");
+  const sentinel = "// SENTINEL — do not overwrite\n";
+  writeFileSync(cliPath, sentinel);
+
+  const r2 = runInit({ cwd: root });
+  assert.equal(r2.code, 0);
+  assert.equal(readFileSync(cliPath, "utf8"), sentinel);
+});
+
+test("target root === source root (running init inside the source checkout) skips the CLI copy", () => {
+  // ../src/init.ts here IS the module runInit calls import.meta.url on, so its "source root"
+  // is always this real proofloop/ checkout. Alias a fresh repo's proofloop/ to that same real
+  // directory via a symlink so realpathSync resolves both sides to the identical path — this
+  // is the one way to hit the reflexive branch without pointing init at the real repo itself
+  // (which would risk writing into it). Nothing here writes through the symlink: the CLI-copy
+  // check returns before touching it, and the starter map write below sees an existing file
+  // (the real proofloop.map.json, via the symlink) and skips rather than overwriting it.
+  const root = mkGitRoot();
+  const realProofloopRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+  symlinkSync(realProofloopRoot, join(root, "proofloop"), "dir");
+
+  const r = runInit({ cwd: root });
+  assert.equal(r.code, 0);
+  assert.ok(r.lines.some((l) => l === "skipped    proofloop/ (already the source checkout)"));
 });
