@@ -84,3 +84,21 @@ test("a final line without a trailing newline is flushed by end()", () => {
   assert.equal(r.runEnd?.status, "passed");
   assert.equal(r.runEnd?.final_state?.k, "v");
 });
+
+test("runCredits reads kane-cli's credits_consumed as well as the documented credits field", async () => {
+  const { runCredits, stepGlyph } = await import("../src/ndjson.ts");
+  assert.equal(runCredits(null), null);
+  assert.equal(runCredits({ type: "run_end", status: "passed" }), null);
+  assert.equal(runCredits({ type: "run_end", status: "passed", credits: 0 }), 0);
+  assert.equal(runCredits({ type: "run_end", status: "passed", credits_consumed: 5.56 }), 5.56);
+  assert.equal(stepGlyph("done"), "✓");
+  assert.equal(stepGlyph("running"), "…");
+  assert.equal(stepGlyph("failed"), "✗");
+});
+
+test("a progress event with status 'error' counts as the failed step", () => {
+  const p = createRunParser();
+  p.line('{"step":4,"status":"error","remark":"assert: Net equals $780.00 — found $680.00"}');
+  p.line('{"type":"run_end","status":"failed","reason":"assertion failed"}');
+  assert.equal(p.end().failedStep?.step, 4);
+});

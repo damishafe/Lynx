@@ -15,6 +15,8 @@ export type RunEnd = {
   reason?: string;
   duration?: number;
   credits?: number;
+  /** Field name actually emitted by kane-cli 0.8.x (the agent doc says `credits`). */
+  credits_consumed?: number;
   final_state?: Record<string, unknown>;
   context?: {
     memory?: Record<string, unknown>;
@@ -77,7 +79,7 @@ export function createRunParser() {
         remark: String(rec.remark ?? ""),
       };
       result.steps.push(ev);
-      if (ev.status === "failed") result.failedStep = ev;
+      if (ev.status === "failed" || ev.status === "error") result.failedStep = ev;
     }
   }
 
@@ -117,4 +119,19 @@ export function deriveOutcome(parsed: ParsedRun, exitCode: number): Outcome {
   if (exitCode === 2 || exitCode === 3) return "error";
   if (!parsed.runEnd) return "error";
   return parsed.runEnd.status === "passed" ? "passed" : "failed";
+}
+
+/** Credits for a run: kane-cli 0.8.x emits `credits_consumed`; the agent doc documents `credits`. */
+export function runCredits(end: RunEnd | null): number | null {
+  if (!end) return null;
+  if (typeof end.credits === "number") return end.credits;
+  if (typeof end.credits_consumed === "number") return end.credits_consumed;
+  return null;
+}
+
+/** Progress-event status → display glyph. kane-cli emits running/done; the doc says passed/failed. */
+export function stepGlyph(status: string): string {
+  if (status === "failed" || status === "error") return "✗";
+  if (status === "running") return "…";
+  return "✓";
 }

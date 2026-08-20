@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { getChangedFiles as gitChangedFiles } from "./diff.ts";
 import { computeImpact, loadFlowMap } from "./impact.ts";
 import { kaneVersion, runKaneTest, type KaneRunOptions, type KaneRunResult } from "./kane.ts";
-import { deriveOutcome } from "./ndjson.ts";
+import { deriveOutcome, runCredits, stepGlyph } from "./ndjson.ts";
 import { collectEvidence, reportId, writeReport, type FlowResult, type VerifyReport } from "./report.ts";
 
 export type VerifyOptions = {
@@ -151,7 +151,7 @@ export async function runVerify(opts: VerifyOptions, overrides: Partial<VerifyDe
         cwd: opts.root,
         variablesFile: VARIABLES_FILE,
         timeoutS: opts.timeoutS ?? 300,
-        onStep: (s) => deps.log(`  [${flow}] step ${s.step} ${s.status === "passed" ? "✓" : "✗"} ${s.remark}`),
+        onStep: (s) => { if (s.status !== "running") deps.log(`  [${flow}] step ${s.step} ${stepGlyph(s.status)} ${s.remark}`); },
         onStderr: (chunk) => {
           for (const l of chunk.split("\n")) {
             if (l.trim()) {
@@ -163,7 +163,7 @@ export async function runVerify(opts: VerifyOptions, overrides: Partial<VerifyDe
       });
       const status = deriveOutcome(run.parsed, run.exitCode);
       const end = run.parsed.runEnd;
-      const credits = typeof end?.credits === "number" ? end.credits : null;
+      const credits = runCredits(end);
       const errorReason =
         status === "error"
           ? `kane-cli exited ${run.exitCode} without a run_end event` +
