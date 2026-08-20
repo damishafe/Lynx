@@ -14,5 +14,14 @@ Click "Bookings" in the left sidebar, click "New booking", select "Unit 7 · Har
 ## Check out and complete the turnover clean
 Click the "Check out" button on the "Sarah Johnson" row and wait until its status reads "Checked out". Click "Work orders" in the left sidebar and click "Complete" on the row titled "Turnover clean · Unit 7 · Harbor". Assert that row shows "Completed".
 
-## The ledger adds up
-Click "Overview" in the left sidebar. In the "Profitability" card, store the amount next to "Revenue" as 'revenue', the amount next to "Costs" as 'costs' and the amount next to "Net" as 'net'. Assert revenue equals "$1,000.00", costs equals "$120.00" and net equals "$880.00".
+## Open the Overview
+Click "Overview" in the left sidebar and wait until the "Profitability" card is visible.
+
+## Revenue is recognised
+In the "Profitability" card, store the amount shown next to "Revenue" as 'revenue' and assert it equals "$1,000.00".
+
+## Costs reflect the completed clean
+In the "Profitability" card, store the amount shown next to "Costs" as 'costs' and assert it equals "$120.00".
+
+## Net is revenue minus costs
+In the "Profitability" card, store the amount shown next to "Net" as 'net' and assert it equals "$880.00".
