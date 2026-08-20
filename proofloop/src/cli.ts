@@ -37,13 +37,14 @@ async function main(): Promise<number> {
   if (command === "verify") {
     const mode = flag(args, "--all") ? "all" : option(args, "--flow") ? "flow" : "changed";
     const timeoutRaw = option(args, "--timeout");
+    const t = Number(timeoutRaw);
     const report = await runVerify({
       root,
       mode,
       flow: option(args, "--flow"),
       trigger: "cli",
       attempt: 1,
-      timeoutS: timeoutRaw ? Number(timeoutRaw) : undefined,
+      timeoutS: Number.isFinite(t) && t > 0 ? t : undefined,
     });
     process.stdout.write(flag(args, "--json") ? `${JSON.stringify(report, null, 2)}\n` : `${formatConsole(report)}\n`);
     return report.verdict === "verified" || report.verdict === "nothing-to-verify" ? 0 : report.verdict === "failed" ? 1 : 2;
@@ -55,13 +56,11 @@ async function main(): Promise<number> {
     const logFile = join(proofloopDir(root), "hook.log");
     const log = (m: string) => appendFileSync(logFile, `${new Date().toISOString()} ${m}\n`);
     const stdin = await readStdin();
-    log(`--- Stop hook fired; payload=${stdin.slice(0, 200)}`);
-    const decision = await runHook(stdin, root, {
-      verify: (attempt) => runVerify({ root, mode: "changed", trigger: "hook", attempt }, { log }),
-    });
-    log(`decision=${decision.action} exit=${decision.exitCode}`);
+    log(`--- Stop hook fired; payload=${stdin.trim().slice(0, 200)}`);
+    const decision = await runHook(stdin, root, { log });
+    log(`decision=${decision.action} verdict=${decision.verdict ?? "n/a"} exit=${decision.exitCode}`);
     if (decision.action === "block") {
-      process.stderr.write(decision.message);
+      process.stderr.write(`${decision.message}\n`);
       return 2;
     }
     if (decision.message) process.stdout.write(`${JSON.stringify({ systemMessage: decision.message })}\n`);
@@ -93,7 +92,12 @@ async function main(): Promise<number> {
 }
 
 main().then(
-  (code) => process.exit(code),
+  (code) => {
+    // Set the exit code and let the event loop drain naturally, rather than forcing
+    // process.exit(): stdout/stderr writes can be asynchronous when piped, and an
+    // immediate exit can truncate the block reason or systemMessage before it lands.
+    process.exitCode = code;
+  },
   (err) => {
     process.stderr.write(`ProofLoop crashed: ${err instanceof Error ? err.stack ?? err.message : String(err)}\n`);
     // A crash must never trap the agent: exit 0 so Claude can stop. The error is visible in hook.log / stderr.

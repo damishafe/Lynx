@@ -1,11 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync } from "node:fs";
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { decide, MAX_ATTEMPTS, readAttempts, runHook } from "../src/hook.ts";
-import type { VerifyReport } from "../src/report.ts";
+import { proofloopDir, type VerifyReport } from "../src/report.ts";
 
 function report(verdict: VerifyReport["verdict"]): VerifyReport {
   return {
@@ -75,6 +75,14 @@ test("runHook counts attempts per session and clears them on success", async () 
   const third = await runHook(payload, root, deps);
   assert.equal(third.action, "allow");
   assert.equal(readAttempts(root, "s1"), 0);
+});
+
+test("readAttempts guards against a non-numeric attempts value (NaN trap)", () => {
+  const root = mkdtempSync(join(tmpdir(), "proofloop-hook-"));
+  const dir = proofloopDir(root);
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, "session-s9.json"), JSON.stringify({ attempts: "garbage" }));
+  assert.equal(readAttempts(root, "s9"), 0);
 });
 
 test("PROOFLOOP_DISABLED=1 allows immediately without verifying", async () => {

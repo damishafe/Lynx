@@ -1,14 +1,14 @@
 import { execFileSync } from "node:child_process";
 
 function git(args: string[], cwd: string): string[] {
-  return execFileSync("git", args, { cwd, encoding: "utf8" })
+  return execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] })
     .split("\n")
     .map((s) => s.trim())
     .filter(Boolean);
 }
 
 export function gitRoot(cwd: string): string {
-  return execFileSync("git", ["rev-parse", "--show-toplevel"], { cwd, encoding: "utf8" }).trim();
+  return execFileSync("git", ["rev-parse", "--show-toplevel"], { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
 }
 
 /**

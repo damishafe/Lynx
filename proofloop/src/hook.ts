@@ -19,10 +19,13 @@ export type HookDecision = {
   /** Block: fed to Claude as the reason. Allow: shown as a systemMessage (may be empty). */
   message: string;
   exitCode: 0 | 2;
+  /** The verify verdict behind this decision. Absent only when PROOFLOOP_DISABLED short-circuits before verifying. */
+  verdict?: string;
 };
 
 export type HookDeps = {
   verify: (attempt: number) => Promise<VerifyReport>;
+  log: (message: string) => void;
 };
 
 function attemptsFile(root: string, sessionId: string): string {
@@ -34,7 +37,9 @@ export function readAttempts(root: string, sessionId: string): number {
   const file = attemptsFile(root, sessionId);
   if (!existsSync(file)) return 0;
   try {
-    return Number((JSON.parse(readFileSync(file, "utf8")) as { attempts?: number }).attempts ?? 0);
+    const parsed = JSON.parse(readFileSync(file, "utf8")) as { attempts?: number };
+    const n = Number(parsed.attempts);
+    return Number.isFinite(n) && n >= 0 ? Math.floor(n) : 0;
   } catch {
     return 0;
   }
@@ -64,12 +69,15 @@ export function decide(report: VerifyReport, attemptsAfter: number, max: number)
       return { action: "allow", message: "", exitCode: 0 };
     case "verified":
       return { action: "allow", message: buildAllowMessage(report), exitCode: 0 };
-    case "error":
+    case "error": {
+      const detail = report.preflight?.message ?? report.results.map((r) => r.reason).filter(Boolean).join("; ");
+      const why = detail.length ? detail : "unknown error";
       return {
         action: "allow",
-        message: `⚠️ ProofLoop could not verify this change: ${report.preflight?.message ?? report.results.map((r) => r.reason).filter(Boolean).join("; ") ?? "unknown error"}. Fix the environment and run: node proofloop/src/cli.ts verify --changed`,
+        message: `⚠️ ProofLoop could not verify this change: ${why}. Fix the environment and run: node proofloop/src/cli.ts verify --changed`,
         exitCode: 0,
       };
+    }
     case "failed":
       if (attemptsAfter >= max) {
         return {
@@ -98,7 +106,8 @@ export async function runHook(stdinText: string, root: string, overrides: Partia
   const payload = parsePayload(stdinText);
   const sessionId = payload.session_id ?? "unknown";
   const deps: HookDeps = {
-    verify: (attempt) => runVerify({ root, mode: "changed", trigger: "hook", attempt }),
+    log: () => {},
+    verify: (attempt) => runVerify({ root, mode: "changed", trigger: "hook", attempt }, { log: deps.log }),
     ...overrides,
   };
 
@@ -113,5 +122,5 @@ export async function runHook(stdinText: string, root: string, overrides: Partia
     clearAttempts(root, sessionId);
     attemptsAfter = 0;
   }
-  return decide(report, attemptsAfter, MAX_ATTEMPTS);
+  return { ...decide(report, attemptsAfter, MAX_ATTEMPTS), verdict: report.verdict };
 }

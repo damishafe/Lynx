@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/proofloop/src/cli.ts\" hook",
+            "command": "node --no-warnings \"$CLAUDE_PROJECT_DIR/proofloop/src/cli.ts\" hook",
             "timeout": 1500
           }
         ]
