@@ -1,0 +1,59 @@
+{
+  "id": "2026-08-21T07-40-47-940Z",
+  "startedAt": "2026-08-21T07:40:47.940Z",
+  "finishedAt": "2026-08-21T07:41:34.997Z",
+  "trigger": "cli",
+  "attempt": 1,
+  "changedFiles": [
+    "frontend/app/dashboard/page.tsx",
+    "frontend/app/page.tsx",
+    "frontend/components/sections/proofloop.tsx"
+  ],
+  "unmapped": [],
+  "ignored": [
+    "frontend/app/page.tsx",
+    "frontend/components/sections/proofloop.tsx"
+  ],
+  "flows": [
+    "profit"
+  ],
+  "results": [
+    {
+      "flow": "profit",
+      "title": "Profitability invariant — Net = Revenue − Costs",
+      "test": "kane/profit-invariant_test.md",
+      "status": "passed",
+      "exitCode": 0,
+      "reason": "replay completed",
+      "summary": "",
+      "oneLiner": "",
+      "finalState": {
+        "turnover_clean_unit_7_harbor_completed_check": "Completed",
+        "revenue_equals_1000_00_check": "$1,000.00",
+        "revenue": "$1,000.00",
+        "costs": "$220.00",
+        "costs_equals_check": "$220.00",
+        "platform_fee_equals_check": "$100.00",
+        "platform_fee": "$100.00",
+        "net_equals_780_00_check": "$780.00",
+        "net": "$780.00"
+      },
+      "checks": [],
+      "failedStep": null,
+      "stepsTotal": 8,
+      "durationS": 11,
+      "credits": null,
+      "replayed": true,
+      "runDir": "/Users/enoch/.testmuai/kaneai/sessions/8e640e56-9e05-4681-ba9a-6d253e193f48/scratch/7/replay-test",
+      "testUrl": null,
+      "evidence": {
+        "screenshot": null,
+        "actions": null
+      }
+    }
+  ],
+  "verdict": "verified",
+  "roots": [
+    "frontend/"
+  ]
+}

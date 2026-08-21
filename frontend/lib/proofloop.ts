@@ -44,7 +44,11 @@ export type VerifyReport = {
 
 /** `.proofloop/` lives at the repo root, one level above `frontend/` (override with PROOFLOOP_DIR). */
 export function proofloopDir(): string {
-  return process.env.PROOFLOOP_DIR ?? resolve(process.cwd(), "..", ".proofloop");
+  // Dev: the real `.proofloop/` one level above `frontend/`. Deployed: PROOFLOOP_DIR points at a
+  // committed snapshot (relative paths resolve from the app root) so judges see real verdicts.
+  const configured = process.env.PROOFLOOP_DIR;
+  if (configured) return resolve(process.cwd(), configured);
+  return resolve(process.cwd(), "..", ".proofloop");
 }
 
 export function readLatestReport(): VerifyReport | null {
