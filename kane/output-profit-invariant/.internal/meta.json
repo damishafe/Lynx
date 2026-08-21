@@ -1,5 +1,5 @@
 {
-  "commit_id": "a891d138-e7b4-4808-a542-48b689700c1f",
+  "commit_id": "de158d8d-7d1f-4d66-a3c3-56a5c625baf2",
   "test_id": "6ea41acb-f0a8-4842-bb3a-7d5be878efeb",
   "testcase_id": "01M0GCAMAF0EN1RKTD3PMDW7J8",
   "project_id": "01M0GB1M5XXC0WG4K2WXVCMKGS",
@@ -8,39 +8,18 @@
   "session_name": "profit-invariant",
   "executions": [
     {
-      "execution_id": "ed8399b8-6379-4021-a61d-37a8b5f62d7b",
+      "execution_id": "5ba65024-5520-4cb2-aa2d-2f9d374ea6ba",
       "run_kind": "author",
       "status": "passed",
       "valid": true,
-      "at": "2026-08-20T20:43:57.669Z"
+      "at": "2026-08-21T07:31:13.428Z"
     },
     {
-      "execution_id": "42664b82-fb49-4983-8bb2-3bd8d677db47",
+      "execution_id": "d0c865a8-0591-4e64-a684-261bfc89b320",
       "run_kind": "replay",
       "status": "passed",
       "valid": true,
-      "at": "2026-08-20T20:44:37.793Z"
-    },
-    {
-      "execution_id": "bb9f0d0e-8f6e-46d5-baf3-aac4ab13358b",
-      "run_kind": "replay",
-      "status": "passed",
-      "valid": true,
-      "at": "2026-08-20T20:45:15.630Z"
-    },
-    {
-      "execution_id": "383e6583-1ebe-413e-ad26-57a906288112",
-      "run_kind": "replay",
-      "status": "passed",
-      "valid": true,
-      "at": "2026-08-20T22:13:13.274Z"
-    },
-    {
-      "execution_id": "33dd5ea0-4427-4f2c-89f3-22a60dbece0f",
-      "run_kind": "replay",
-      "status": "passed",
-      "valid": true,
-      "at": "2026-08-20T22:33:00.964Z"
+      "at": "2026-08-21T07:38:17.795Z"
     }
   ]
 }

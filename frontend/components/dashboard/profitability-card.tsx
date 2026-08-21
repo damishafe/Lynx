@@ -20,6 +20,7 @@ export function ProfitabilityCard({
   const rows: { label: string; cents: number; emphasis?: boolean }[] = [
     { label: "Revenue", cents: ledger.revenueCents },
     { label: "Costs", cents: ledger.costsCents },
+    { label: "Platform fee", cents: ledger.platformFeeCents },
     { label: "Net", cents: ledger.netCents, emphasis: true },
   ];
 

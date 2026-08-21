@@ -21,4 +21,4 @@ Go to {{app_url}}/dashboard and wait until the "Owed to vendors" card is visible
 Go to {{app_url}}/dashboard/units and wait until the unit cards are visible. Assert the card for "Unit 7 · Harbor" shows the status "Ready".
 
 ## The clean is charged once, not twice
-Go to {{app_url}}/dashboard and wait until the "Profitability" card is visible. In the "Profitability" card, store the amount shown next to "Costs" as 'costs' and assert it equals "$120.00".
+Go to {{app_url}}/dashboard and wait until the "Profitability" card is visible. In the "Profitability" card, store the amount shown next to "Costs" as 'costs' and assert it equals "$220.00" — the $100.00 platform fee plus one $120.00 clean, not $340.00.
