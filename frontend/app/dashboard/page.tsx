@@ -86,7 +86,7 @@ export default async function OverviewPage() {
     needs_cleaning: 0,
     maintenance: 0,
   };
-  let ledger: Ledger = { revenueCents: 0, costsCents: 0, netCents: 0 };
+  let ledger: Ledger = { revenueCents: 0, costsCents: 0, platformFeeCents: 0, netCents: 0 };
   let recentUnits: UnitDoc[] = [];
   let activity: ActivityEvent[] = [];
   let assignedWorkOrders: WorkOrderDoc[] = [];
