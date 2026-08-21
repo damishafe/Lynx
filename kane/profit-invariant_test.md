@@ -20,8 +20,11 @@ Go to {{app_url}}/dashboard and wait until the "Profitability" card is visible.
 ## Revenue is recognised
 In the "Profitability" card, store the amount shown next to "Revenue" as 'revenue' and assert it equals "$1,000.00".
 
-## Costs reflect the completed clean
-In the "Profitability" card, store the amount shown next to "Costs" as 'costs' and assert it equals "$120.00".
+## Costs include the platform fee and the clean
+In the "Profitability" card, store the amount shown next to "Costs" as 'costs' and assert it equals "$220.00".
+
+## The platform fee is shown as its own line
+In the "Profitability" card, store the amount shown next to the line that mentions the platform fee as 'platform_fee' and assert it equals "$100.00".
 
 ## Net is revenue minus costs
-In the "Profitability" card, store the amount shown next to "Net" as 'net' and assert it equals "$880.00".
+In the "Profitability" card, store the amount shown next to "Net" as 'net' and assert it equals "$780.00".
