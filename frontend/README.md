@@ -1,8 +1,10 @@
-# Lynx
+# Lynx frontend
 
-Next.js 16 app for the Lynx multi-unit operations dashboard.
+The Next.js 16 app lives here. Full project README — architecture, ProofLoop, Kane flows, demo
+video, and run instructions — is at the [repo root](../README.md).
 
 ```bash
+cp .env.example .env.local
 npm install
 npm run dev
 ```
