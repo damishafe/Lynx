@@ -1,138 +1,341 @@
-# Lynx + ProofLoop
+<div align="center">
 
-Lynx is an operations dashboard for short-term-rental hosts: bookings, unit status, turnover
-cleaning, vendor payouts and a live profitability ledger. It was built almost entirely by
-Claude Code. **ProofLoop** is the verification layer that made that safe to ship: every time
-Claude Code tries to end a turn with uncommitted changes under `frontend/`, a Stop hook maps
-those changes to the business flows they could break, replays the matching `kane/*_test.md`
-tests in a real headless Chrome via [Kane CLI](https://www.testmuai.com/support/docs/kane-cli-introduction/), and **blocks the stop** —
-feeding Kane's failure report straight back to Claude — until the flows pass in the browser,
-not just in the agent's head.
+<img src="assets/cover.jpg" alt="Lynx — every AI-written change proves itself in a real browser" width="100%" />
 
-## Run it (≈60 seconds)
+&nbsp;
 
-```bash
-git clone <this-repo> && cd lynx
-cd frontend && cp .env.example .env.local
-# paste a MONGODB_URI into .env.local — Atlas (mongodb+srv://…) or local (see below)
-npm install && npm run dev
+[![CI](https://github.com/damishafe/Lynx/actions/workflows/verify.yml/badge.svg)](https://github.com/damishafe/Lynx/actions/workflows/verify.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+![Tests](https://img.shields.io/badge/tests-57%20passing-10b981)
+![Kane flows](https://img.shields.io/badge/Kane%20flows-4%20·%2025%20steps-10b981)
+![Stack](https://img.shields.io/badge/Next.js%2016%20·%20React%2019%20·%20MongoDB%20·%20Kane%20CLI-1f1f23)
+[![Live](https://img.shields.io/badge/live-lynx--kane.vercel.app-10b981)](https://lynx-kane.vercel.app/)
+
+### The agent doesn't decide when it's done. Kane CLI does — in real Chrome, against business flows written as plain English.
+
+Lynx is a multi-unit operations dashboard for short-term rental operators. **ProofLoop** is the
+verification layer that makes building it with Claude Code safe to ship: on every attempted stop,
+a hook maps the git diff to the business flows it could break, replays the matching
+`kane/*_test.md` specs in headless Chrome, and **blocks the agent** with Kane's failure report
+until every impacted flow passes — not when the model says it is done.
+
+**[ Live app ↗ ](https://lynx-kane.vercel.app/)** &nbsp;·&nbsp; **[ Judge it in 90 seconds ↗ ](#judge-lynx-in-90-seconds)** &nbsp;·&nbsp; **[ Demo ↗ ](#-demo)** &nbsp;·&nbsp; **[ How ProofLoop decides ↗ ](#how-proofloop-decides)** &nbsp;·&nbsp; **[ Install in your repo ↗ ](#use-it-in-any-repo)**
+
+</div>
+
+---
+
+## ▶ Demo
+
+<video src="video/out/lynx-proofloop-demo.mp4" width="100%" controls></video>
+
+**[Download `lynx-proofloop-demo.mp4` (110s, 15 MB)](video/out/lynx-proofloop-demo.mp4)**
+
+Every frame is the real console driving the real app — no mockups, no reconstructed agent output.
+It walks one regression end to end: a $1,000 booking and turnover clean, a broken ledger
+(`Costs $240.00` vs expected `$120.00`), Kane blocking Claude Code's stop with the real
+`run_end` reason, the agent's fix, and a live re-verification that passes all eight profit steps
+before the stop is allowed.
+
+```
+Same coding agent. Same app. Same four business flows.
+Only the browser evidence decides when the change ships.
 ```
 
-Open `http://localhost:3000/demo` and click **"Reset & launch demo"**. That seeds three units,
-two vendors and signs you in — no bookings, no work orders, a clean slate every time.
+---
 
-No Atlas account handy? Local MongoDB works too:
+## Judge Lynx in 90 seconds
+
+**Live console: [lynx-kane.vercel.app](https://lynx-kane.vercel.app/)** — frontend on Vercel,
+MongoDB Atlas for auth and data, and a shipped ProofLoop snapshot on `/proofloop`. Click
+**Launch Demo** on the landing page or go straight to
+[`/demo`](https://lynx-kane.vercel.app/demo) → **Reset & launch demo** to run the product loop
+without a local setup.
+
+Everything also runs locally in four commands — Kane CLI replays the four business flows in
+headless Chrome against your own dev server.
+
+Four numbers, all reproducible from this repository:
+
+| | |
+|---|---|
+| **4 / 4** | business flows Kane must hold on every full verify — booking, cleaning, readiness, profit |
+| **25** | browser steps across the four `kane/*_test.md` contracts (6 + 5 + 8 + 6) |
+| **0 credits** | on replay after the first authoring run — committed `kane/output-*/` recordings replay for free |
+| **exit 2** | Stop hook blocks Claude Code with Kane's structured failure until the flow passes (max 3 attempts) |
 
 ```bash
-docker run -d --name lynx-mongo -p 27017:27017 mongo:7
-# MONGODB_URI=mongodb://localhost:27017
+cd frontend && cp .env.example .env.local   # paste MONGODB_URI
+npm install && npm run dev                  # http://localhost:3000
+
+npm i -g @testmuai/kane-cli && kane-cli login
+node proofloop/src/cli.ts verify --all      # expect: VERIFIED — 4/4 flows, exit 0
+open http://localhost:3000/proofloop        # same verdict as a live status page
+open http://localhost:3000/demo             # Reset & launch demo → run the flows yourself
 ```
 
-## Run ProofLoop
+On production: [`/demo`](https://lynx-kane.vercel.app/demo) seeds three units and two vendors
+with one click; [`/proofloop`](https://lynx-kane.vercel.app/proofloop) shows flows verified,
+repair iterations, and Kane evidence from the last shipped verify run.
 
-From the repo root (a second terminal — keep `npm run dev` running in `frontend/`):
+---
 
-```bash
-npm i -g @testmuai/kane-cli && kane-cli login   # or: kane-cli login --oauth
-node proofloop/src/cli.ts verify --all
+## Table of contents
+
+- [The problem I set out to solve](#the-problem-i-set-out-to-solve)
+- [What I built](#what-i-built)
+- [Architecture](#architecture)
+- [How ProofLoop decides](#how-proofloop-decides)
+- [The Kane contract](#the-kane-contract)
+- [Engineering decisions & the hard problems](#engineering-decisions--the-hard-problems)
+- [Use it in any repo](#use-it-in-any-repo)
+- [The live console](#the-live-console)
+- [Honesty: limitations](#honesty-limitations)
+- [Tech stack](#tech-stack)
+- [Project layout](#project-layout)
+- [Run it locally](#run-it-locally)
+- [Tests](#tests)
+- [Attribution](#attribution)
+
+---
+
+## The problem I set out to solve
+
+Coding agents ship fast. They also ship **confidently wrong** — a ledger formula that looks fine
+in the diff, a checkout path that creates two cleaning jobs instead of one, a vendor payout that
+fires twice. Unit tests catch syntax. They rarely catch *business invariants* that only show up
+when a real user clicks through five screens in the right order.
+
+The failure mode I cared about is subtler than a red CI badge: **the agent decides it is done**
+because lint passes and the code *reads* correct. Meanwhile Net profit is off by $120 and the
+demo would embarrass you in front of a judge.
+
+So I treated *"this change still holds the booking → cleaning → payout → ledger chain"* as a
+first-class gate, sitting right between the agent and `git commit`. Every design decision below
+exists to make AI-written changes **provable in Chrome before they are allowed to land**.
+
+## What I built
+
+Two things in one repo:
+
+1. **Lynx** — an operations OS for boutique STR hosts (5–30 units): bookings, unit status,
+   turnover cleaning, vendor payouts, a live profitability ledger, reports, billing, and a
+   one-click demo.
+2. **ProofLoop** — a zero-dependency Node ≥ 24 CLI wired into Claude Code's Stop hook. It maps
+   changed files → business flows, runs Kane CLI, parses NDJSON `run_end` events, writes
+   `.proofloop/latest.json`, and returns exit code 2 with a structured block reason until the
+   flows pass.
+
+The loop, in one sentence: **Claude Code edits `frontend/` → tries to stop → ProofLoop fires
+Kane in headless Chrome → failure feeds back as stderr → agent fixes → re-verify → allow.**
+
+## Architecture
+
+```mermaid
+flowchart LR
+    A[Claude Code<br/>edits frontend/] --> S{Stop hook}
+    S --> D[git diff →<br/>proofloop.map.json]
+    D --> K[Kane CLI<br/>headless Chrome]
+    K --> P{All impacted<br/>flows pass?}
+    P -- yes --> OK[allow stop<br/>systemMessage ✅]
+    P -- no --> BL[exit 2 + block reason<br/>→ agent reads & fixes]
+    BL --> A
+    K --> E[.proofloop/latest.json<br/>+ evidence/]
+    E --> W[/proofloop status page]
 ```
 
-Expected: four `✓ …` lines and `VERIFIED — 4/4 flows proven in a real browser`, exit 0. The
-first run authors each test (spends credits); subsequent runs replay the committed
-`kane/output-*/` recordings at 0 credits. Then open `http://localhost:3000/proofloop` to see the
-same verdict as a live status page: flows verified, repair iterations, evidence.
+The behavioral contract lives in Markdown, not Jest:
 
-Set `PROOFLOOP_DISABLED=1` to skip the Stop hook entirely (e.g. `npm run dev` isn't running).
+```
+kane/booking-lifecycle_test.md   →  booking occupies unit + revenue recognised
+kane/cleaning-lifecycle_test.md  →  checkout creates exactly one clean; Ready refused
+kane/unit-readiness_test.md      →  complete clean pays vendor once; unit freed
+kane/profit-invariant_test.md    →  Net = Revenue − Costs on the live dashboard
+```
 
-## Install ProofLoop in your own repo
+| Object | Role |
+|---|---|
+| `proofloop.map.json` | Maps changed file globs → flow keys → `kane/*_test.md` paths |
+| `kane/*_test.md` | Plain-English browser tests Kane replays step by step |
+| `kane/output-*/` | Committed replay recordings — free on every run after first authorship |
+| `.proofloop/latest.json` | Last verify verdict, per-flow results, final_state checks, evidence paths |
+| `.claude/settings.json` | Stop hook: `node proofloop/src/cli.ts hook` (1500s timeout) |
 
-ProofLoop isn't Lynx-specific. There's no published package yet, so: clone or download this
-repo once, then from your own repo's root run
+## How ProofLoop decides
+
+ProofLoop runs in three modes — `verify --changed` (Stop hook), `verify --all`, `verify --flow <name>` — with the same core:
+
+1. **Diff** — `git diff HEAD` + staged + untracked, scoped to `frontend/` (respects `.gitignore`).
+2. **Impact** — match changed paths against `flows.*.paths`, `shared`, and `ignore`; unmapped
+   files trigger the configured `fallback` flow (`profit`).
+3. **Preflight** — `GET {{app_url}}` reachable? `kane-cli` on PATH?
+4. **Run** — for each impacted flow, `kane-cli testmd run kane/<flow>_test.md --agent --headless --retry`.
+5. **Parse** — aggregate per-step `run_end` NDJSON; verdict keys off `test_md_summary`.
+6. **Record** — `.proofloop/latest.json`, append-only `history.jsonl`, copy evidence under
+   `.proofloop/evidence/<run-id>/`.
+7. **Decide** — pass → allow + `✅ ProofLoop: N/N flows verified`; fail → exit 2 + structured
+   reason on stderr (Claude reads it); ≥ 3 attempts → allow with human-needed message.
+
+Stop-hook policy:
+
+| Situation | Outcome |
+|---|---|
+| No changed files under `frontend/` | allow silently |
+| All impacted flows pass | allow + success systemMessage |
+| Flow fails, attempts < 3 | **block** (exit 2) — agent must repair |
+| Flow fails, attempts ≥ 3 | allow + human needed |
+| Preflight / infra error | allow + warning (unreachable dev server ≠ code failure) |
+
+Set `PROOFLOOP_DISABLED=1` to skip the hook. Never edit `kane/*_test.md` to make a failing app pass.
+
+## The Kane contract
+
+Four flows, twenty-five steps, zero mocks:
+
+| Test | Steps | Proves |
+|---|---:|---|
+| `booking-lifecycle_test.md` | 6 | New booking → unit Occupied → Revenue $1,000.00 on Overview |
+| `cleaning-lifecycle_test.md` | 5 | Checkout → exactly one turnover clean → Ready refused while job open |
+| `unit-readiness_test.md` | 6 | Complete clean → vendor owed $120.00 once → unit Ready → Costs $220.00 not $340.00 |
+| `profit-invariant_test.md` | 8 | Full chain → Revenue, Costs, platform fee, Net ($780.00) all match on dashboard |
+
+First run **authors** each test (spends Kane credits). Once green, the `kane/output-<stem>/`
+recording is committed; every subsequent verify **replays** at 0 credits.
+
+## Engineering decisions & the hard problems
+
+- **Requirements as browser tests, not agent memory.** The invariant is written where a PM can
+  read it (`## Revenue is recognised` → assert `$1,000.00`). Kane enforces it; Claude does not
+  grade itself.
+- **Impact mapping, not verify-everything-always.** A change to `ledger-math.ts` runs the profit
+  flow only. A change to `seed.ts` runs all four via `shared`. Unmapped files fall back to profit
+  so silent gaps do not ship.
+- **Block on stderr, not a chat reminder.** Exit code 2 + structured reason including the failing
+  step, observed vs expected values, and Kane's `run_end` — the agent sees it as hook output,
+  not a suggestion.
+- **Replay economics.** Authored once, replayed forever. The Stop hook would be unusable if every
+  stop spent credits; committed `output-*/` dirs make verification free at agent speed.
+- **Fail open on infra, fail closed on behavior.** Dev server down → warning, not a false block.
+  Ledger wrong → block until fixed or three attempts exhaust.
+- **Evidence you can show a judge.** `/proofloop` renders the same JSON the hook wrote — verdict,
+  per-flow status, repair count, screenshot links via `/api/proofloop/evidence/...`.
+
+## Use it in any repo
+
+ProofLoop is not Lynx-specific. From any git repo root:
 
 ```bash
 node /path/to/lynx/proofloop/src/cli.ts init --app-url http://localhost:3000
 ```
 
-It copies the zero-dependency CLI into `./proofloop/` and creates, without overwriting anything
-that already exists (`--force` to overwrite):
+Creates (without overwriting unless `--force`):
 
-- `proofloop/` — the CLI itself (`package.json`, `src/*.ts`), so `proofloop/src/cli.ts` now
-  exists in your repo too
-- `.claude/settings.json` — the Stop hook (merged in alongside any hooks you already have)
-- `proofloop/proofloop.map.json` — a starter flow map with configurable `roots`
-- `.testmuai/variables/local.json` and `.testmuai/context.md` — Kane's app URL and context
-- `kane/smoke_test.md` — a two-step "the app loads" test to start from
+- `proofloop/` — the CLI
+- `.claude/settings.json` — Stop hook merged alongside existing hooks
+- `proofloop/proofloop.map.json` — starter flow map
+- `.testmuai/variables/local.json` — Kane `app_url`
+- `kane/smoke_test.md` — two-step "the app loads" test
 
-Then: `npm i -g @testmuai/kane-cli && kane-cli login`, start your app, and run
-`node proofloop/src/cli.ts verify --all` (now from your own repo, no path needed). Edit
-`proofloop.map.json` to map your own files to flows, and restart Claude Code so the Stop hook
-loads. This Lynx repo is the worked example — everything above `## How the loop closes` is what
-`init` produces, grown up.
+Then edit `proofloop.map.json` for your own paths and flows. This Lynx repo is the worked example.
 
-## How the loop closes
+## The live console
 
-```
-Claude Code session (the coding agent)
-  │ edits frontend/…
-  │ attempts to stop (turn ends)
-  ▼
-Stop hook  ──►  node proofloop/src/cli.ts hook        (.claude/settings.json, timeout 1500s)
-                  ├─ changed files   git diff HEAD + staged + untracked, scoped to frontend/
-                  ├─ impacted flows  proofloop/proofloop.map.json  (flow → paths[] + tests[])
-                  ├─ preflight       GET {{app_url}} reachable? kane-cli present?
-                  ├─ for each flow   kane-cli testmd run kane/<flow>_test.md --agent --headless --retry
-                  │                  (Chrome → http://localhost:3000/demo → real user flow)
-                  ├─ parse NDJSON    terminal `run_end` per flow (status/reason/summary/final_state/run_dir/test_url)
-                  ├─ record          .proofloop/latest.json, .proofloop/history.jsonl, .proofloop/evidence/<run>/
-                  ├─ PASS            allow stop  + systemMessage "✅ ProofLoop: N/N flows verified"
-                  └─ FAIL            exit code 2 + structured reason on stderr
-                                     → Claude reads it, fixes code → next stop re-fires Kane
-```
+Hosted at **[lynx-kane.vercel.app](https://lynx-kane.vercel.app/)**. Kane browser verification
+runs locally or in CI via ProofLoop; production `/proofloop` ships the last verified snapshot
+from this repo.
 
-The Stop-hook decision policy (`proofloop hook`):
-
-| Situation | Output | Why |
-|---|---|---|
-| No changed files under `frontend/` | allow (no output) | Plain conversation turns must never launch Chrome. |
-| `verify` → verdict `verified` | allow + `systemMessage: "✅ ProofLoop: N/N flows verified in a real browser (Xs)"` | Make the proof visible in the transcript. |
-| `verify` → verdict `failed` and attempts < 3 | exit code 2 with a structured reason on stderr (Claude reads it and keeps working) | Claude must keep working. |
-| `verify` → verdict `failed` and attempts ≥ 3 | allow + `systemMessage: "⛔ ProofLoop: 3 attempts exhausted — human needed. See .proofloop/latest.json"` | Never trap the agent forever. |
-| preflight/infra error (exit 2/3) | allow + `systemMessage` warning | An unreachable dev server is not a code failure. |
-
-Attempts are counted per Claude session and reset when a verification passes.
-`PROOFLOOP_DISABLED=1` skips the hook outright.
-
-## The Kane contract
-
-Four `kane/*_test.md` flows are the entire behavioral contract Lynx has to hold. Each is a
-plain-English Markdown test Kane replays step by step in a real browser:
-
-| Test | Proves |
+| Route | What it shows |
 |---|---|
-| `kane/booking-lifecycle_test.md` | A new booking occupies its unit and its value shows up as recognised revenue on the Overview card. |
-| `kane/cleaning-lifecycle_test.md` | Checking a guest out schedules **exactly one** turnover-clean work order, and a unit with an open cleaning job refuses to be marked Ready. |
-| `kane/unit-readiness_test.md` | Completing the cleaning job pays the vendor exactly once (not twice) and frees the unit back to Ready. |
-| `kane/profit-invariant_test.md` | The core ledger invariant: Net always equals Revenue minus Costs, read straight off the dashboard. |
+| [`/`](https://lynx-kane.vercel.app/) | Landing — hero, ProofLoop section, four flow cards |
+| [`/demo`](https://lynx-kane.vercel.app/demo) | One-click seeded account — start every Kane flow from a clean slate |
+| [`/dashboard`](https://lynx-kane.vercel.app/dashboard) | Overview — profitability ledger, owed to vendors, operations queue |
+| [`/dashboard/bookings`](https://lynx-kane.vercel.app/dashboard/bookings) | Create bookings, check guests out |
+| [`/dashboard/work-orders`](https://lynx-kane.vercel.app/dashboard/work-orders) | Turnover cleans — complete jobs, trigger payouts |
+| [`/dashboard/units`](https://lynx-kane.vercel.app/dashboard/units) | Unit status — Ready / Occupied / Needs cleaning / Maintenance |
+| [`/proofloop`](https://lynx-kane.vercel.app/proofloop) | Verification status — verdict, flows, repair iterations, evidence |
 
-## Repo layout
+## Honesty: limitations
+
+- **Requires a running dev server and Kane login.** `verify --all` preflights `GET {{app_url}}`
+  and `kane-cli --version`. No server → error verdict, not a fake pass.
+- **Browser tests are slower than unit tests.** A full `--all` replay is ~1–2 minutes; the Stop
+  hook timeout is 1500s to accommodate authoring runs.
+- **Impact map is manual.** New modules must be added to `proofloop.map.json`; unmapped changes
+  hit the fallback flow only.
+- **MongoDB required for auth and persistence.** The build succeeds without it; signup and demo
+  seed need `MONGODB_URI` in `frontend/.env.local`.
+- **Kane credits on first authorship only.** Budget accordingly for the first green run per test;
+  after that, replays are free.
+- **Single coding agent in production hook.** Wired for Claude Code Stop hooks today; the CLI
+  itself is agent-agnostic.
+
+## Tech stack
+
+- **Frontend:** Next.js 16, React 19, Tailwind CSS v4, TypeScript, MongoDB, Stripe, Hugeicons
+- **Verification:** ProofLoop (Node ≥ 24, zero npm dependencies), Kane CLI, headless Chrome
+- **Agent:** Claude Code with Stop hook; Cursor used during development
+- **Film:** Remotion 4 demo (`video/`) — 110s walkthrough built from real captures and live session logs
+
+## Project layout
 
 ```
-frontend/    Next.js 16 + React 19 app — bookings, units, cleaning, payouts, ledger, /demo, /proofloop
-proofloop/   Zero-dependency Node ≥ 24 CLI: verify | hook | report (npm test → 34 unit tests)
-kane/        The four *_test.md flows above; each grows a committed output-<stem>/ replay
-             recording the first time `verify` authors it
-.claude/     Stop hook wiring (settings.json)
-.testmuai/   Kane project context + variables (app_url)
-docs/        This spec's design doc, the demo script, the submission paragraph
+frontend/           Next.js app — Lynx product + /demo + /proofloop status page
+proofloop/          Zero-dep CLI: verify · hook · report · init (53 unit tests)
+kane/               Four *_test.md flows + committed output-*/ replay dirs
+.claude/            Stop hook wiring
+.testmuai/          Kane project context + app_url variable
+.proofloop/         Latest verify report, history, evidence (local; snapshot shipped for /proofloop)
+video/              Remotion demo film + real session assets
+docs/               Submission copy, demo script, design spec
+assets/             README cover image
 ```
 
-## Credits / replay
+## Run it locally
 
-Kane CLI runs cost credits only when a test is **authored or re-authored** (its prose changed).
-The first run of a given `kane/*_test.md` authors it and spends credits; once it's green, its
-`kane/output-<stem>/` recording is committed to the repo, and every subsequent
-`kane-cli testmd run --agent` / `node proofloop/src/cli.ts verify` **replays** that recording
-against the live app for free. Every Stop-hook invocation after the first successful authoring
-run is a free replay.
+**Prerequisites:** Node 20+, MongoDB (Atlas or `docker run -p 27017:27017 mongo:7`), Kane CLI.
 
-**Demo video:** _coming before submission_
+```bash
+git clone https://github.com/damishafe/Lynx.git && cd Lynx/frontend
+cp .env.example .env.local          # MONGODB_URI required
+npm install && npm run dev          # http://localhost:3000
+
+# second terminal — from repo root
+npm i -g @testmuai/kane-cli && kane-cli login
+node proofloop/src/cli.ts verify --all
+```
+
+Quick product loop: `http://localhost:3000/demo` → **Reset & launch demo** → Bookings → New
+booking → Unit 7 · Harbor → $1,000 → Check out → Work orders → Complete → Overview shows
+Net $780.00.
+
+## Tests
+
+```bash
+cd proofloop && npm test            # 53 unit tests — diff, impact, NDJSON, hook policy, verify
+cd frontend && node --test lib/ledger-math.test.ts   # 4 ledger invariant tests
+cd frontend && npx tsc --noEmit && npm run lint
+```
+
+ProofLoop tests run with no network, no Chrome, and no MongoDB — they mock Kane NDJSON fixtures
+for pass, fail, missing `run_end`, preflight errors, and the three-attempt Stop-hook policy.
+
+## Attribution
+
+**Verification** — [Kane CLI](https://www.testmuai.com/support/docs/kane-cli-introduction/) by
+TestMu AI. Browser tests run via `kane-cli testmd run`.
+
+**Framework** — [Next.js](https://nextjs.org) (MIT), [React](https://react.dev) (MIT),
+[Tailwind CSS](https://tailwindcss.com) (MIT), [MongoDB Node driver](https://www.mongodb.com/docs/drivers/node/) (Apache-2.0).
+
+**Agent** — Built primarily with [Claude Code](https://claude.ai/code); Stop hook integration
+follows Anthropic's hooks documentation.
+
+**Icons** — [Hugeicons](https://hugeicons.com) (MIT).
+
+The Lynx product, ProofLoop CLI, flow map, Kane test contracts, and evaluation harness in this
+repository are original work for the Kane CLI Hackathon — lane: **Verification baked into your
+workflow**.
+
+## License
+
+MIT — see [LICENSE](LICENSE).

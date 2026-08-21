@@ -12,4 +12,5 @@ recording for free. Kane's `run_end` feeds back to Claude as a structured block 
 code 2, reason on stderr) until every flow passes, with two automatic repair rounds before
 handing off to a human. Run it with `node proofloop/src/cli.ts verify --all` from the repo root
 after `npm i -g @testmuai/kane-cli && kane-cli login`, or watch it happen live at
-`http://localhost:3000/proofloop`.
+[`https://lynx-kane.vercel.app/proofloop`](https://lynx-kane.vercel.app/proofloop) (production)
+or `http://localhost:3000/proofloop` (local).
