@@ -27,7 +27,7 @@ until every impacted flow passes — not when the model says it is done.
 
 ## ▶ Demo
 
-<video src="video/out/lynx-proofloop-demo.mp4" width="100%" controls></video>
+https://github.com/user-attachments/assets/59c65ff4-8810-49c5-84ea-f4b8eeeb9125
 
 **[Download `lynx-proofloop-demo.mp4` (110s, 15 MB)](video/out/lynx-proofloop-demo.mp4)**
 
@@ -133,15 +133,15 @@ Kane in headless Chrome → failure feeds back as stderr → agent fixes → re-
 
 ```mermaid
 flowchart LR
-    A[Claude Code<br/>edits frontend/] --> S{Stop hook}
-    S --> D[git diff →<br/>proofloop.map.json]
-    D --> K[Kane CLI<br/>headless Chrome]
-    K --> P{All impacted<br/>flows pass?}
-    P -- yes --> OK[allow stop<br/>systemMessage ✅]
-    P -- no --> BL[exit 2 + block reason<br/>→ agent reads & fixes]
+    A["Claude Code edits frontend"] --> S{"Stop hook"}
+    S --> D["git diff to proofloop.map.json"]
+    D --> K["Kane CLI headless Chrome"]
+    K --> P{"All impacted flows pass?"}
+    P -- yes --> OK["allow stop"]
+    P -- no --> BL["exit 2 plus block reason"]
     BL --> A
-    K --> E[.proofloop/latest.json<br/>+ evidence/]
-    E --> W[/proofloop status page]
+    K --> E[".proofloop latest.json plus evidence"]
+    E --> W["proofloop status page"]
 ```
 
 The behavioral contract lives in Markdown, not Jest:
