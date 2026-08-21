@@ -273,7 +273,7 @@ from this repo.
 
 - **Frontend:** Next.js 16, React 19, Tailwind CSS v4, TypeScript, MongoDB, Stripe, Hugeicons
 - **Verification:** ProofLoop (Node ≥ 24, zero npm dependencies), Kane CLI, headless Chrome
-- **Agent:** Claude Code with Stop hook; Cursor used during development
+- **Agent:** Claude Code with Stop hook
 - **Film:** Remotion 4 demo (`video/`) — 110s walkthrough built from real captures and live session logs
 
 ## Project layout
@@ -327,8 +327,7 @@ TestMu AI. Browser tests run via `kane-cli testmd run`.
 **Framework** — [Next.js](https://nextjs.org) (MIT), [React](https://react.dev) (MIT),
 [Tailwind CSS](https://tailwindcss.com) (MIT), [MongoDB Node driver](https://www.mongodb.com/docs/drivers/node/) (Apache-2.0).
 
-**Agent** — Built primarily with [Claude Code](https://claude.ai/code); Stop hook integration
-follows Anthropic's hooks documentation.
+**Agent** — Built with [Claude Code](https://claude.ai/code). Stop hook integration follows Anthropic's hooks documentation.
 
 **Icons** — [Hugeicons](https://hugeicons.com) (MIT).
 
