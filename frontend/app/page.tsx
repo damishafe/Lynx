@@ -14,9 +14,6 @@ export default function Home() {
       <div className="mx-auto max-w-[88rem] flex flex-col gap-5 sm:gap-6">
         <Hero />
         <Reveal>
-          <ProofLoop />
-        </Reveal>
-        <Reveal>
           <Insights />
         </Reveal>
         <Reveal>
@@ -24,6 +21,9 @@ export default function Home() {
         </Reveal>
         <Reveal>
           <Stats />
+        </Reveal>
+        <Reveal>
+          <ProofLoop />
         </Reveal>
         <Reveal>
           <Pricing />
