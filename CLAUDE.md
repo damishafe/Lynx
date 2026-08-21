@@ -57,7 +57,7 @@ Do not invent APIs from memory. If the docs disagree with what you "know," the d
 
 ## State of the project
 
-The frontend is a working Next.js 16 app with auth, units, work orders, vendors, billing, reports, and a seeded demo path. Follow existing patterns in `frontend/app/` and `frontend/lib/` when adding features.
+The frontend is a working Next.js 16 app: units, bookings, work orders, vendors, payouts, a computed profitability ledger, reports, billing, and a seeded demo path (`/demo` → "Reset & launch demo"). The business rules Kane verifies live in `frontend/lib/bookings.ts`, `frontend/lib/ledger-math.ts`, `frontend/lib/work-orders.ts` and the server actions under `frontend/app/dashboard/`. Follow existing patterns in `frontend/app/` and `frontend/lib/` when adding features, and expect ProofLoop (below) to run the affected Kane flows before you are allowed to finish.
 
 ## ProofLoop (hackathon verification layer)
 

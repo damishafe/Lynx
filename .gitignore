@@ -20,3 +20,6 @@ node_modules/
 
 # Kane evidence packs (large; served locally via `kane-cli evidence serve`)
 .testmuai/evidence/
+
+# demo film workspace (Remotion, raw captures, renders)
+video/
